@@ -214,13 +214,13 @@ int main(int argc, char *argv[])
 
 	glm::mat4 projectionMatrix = glm::mat4(1.0f);
 	glm::mat4 viewMatrix = glm::mat4(1.0f);
-	projectionMatrix = glm::ortho(-20.0f, 20.0f, -15.0f, 15.0f, -1.0f, 1.0f);
+	projectionMatrix = glm::ortho(-1.777f, 1.777f, -1.0f, 1.0f, -1.0f, 1.0f);
 	program.SetViewMatrix(viewMatrix);
 	program.SetProjectionMatrix(projectionMatrix);
 
 
 	map.Load("Map1.txt");
-	GLuint spriteTexture = LoadTexture(RESOURCE_FOLDER"arne_sprites.png");
+	spriteTexture = LoadTexture(RESOURCE_FOLDER"arne_sprites.png");
 
 
 	glEnable(GL_BLEND);
@@ -250,6 +250,9 @@ int main(int argc, char *argv[])
 		lastFrameTicks = ticks;
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
 		program.SetModelMatrix(modelMatrix);
+		glm::mat4 viewMatrix = glm::mat4(1.0f);
+		viewMatrix = glm::translate(viewMatrix, glm::vec3(-1.777f, 1.0f, 0.0f));
+		program.SetViewMatrix(viewMatrix);
 		Draw(program);
 
 
