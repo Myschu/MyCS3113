@@ -41,9 +41,10 @@ ShaderProgram program;
 float TILE_SIZE = 0.1f;
 int SPRITE_COUNT_X = 16;
 int SPRITE_COUNT_Y = 8;
+float friction_x = 0.5f;
+float friction_y = 0.5f;
 GLuint spriteTexture;
-float friction = 0.1f;
-float acceleration = 0.25f;
+void DrawSpriteSheetSprite(ShaderProgram &program, int index, int spriteCountX, int spriteCountY, float size);
 
 float lerp(float v0, float v1, float t) {
 	return (1.0 - t)*v0 + t * v1;
@@ -52,28 +53,29 @@ float lerp(float v0, float v1, float t) {
 class Entity {
 public:
 	Entity() {}
-	Entity(float x, float y, float dx, float dy) {
+	Entity(float x, float y, int ind) : index(ind) {
 		position.x = x;
 		position.y = y;
-		d_x = dx;
-		d_y = dy;
-
+		acceleration = glm::vec3(0.0f, 0.0f, 0.0f);
+		velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+		size = glm::vec3(TILE_SIZE, TILE_SIZE, 0.0f);
 	}
 
 	GLuint textureID;
 	int index;
 	string type;
 	float timeAlive;
-	float d_x;
-	float d_y;
+
 	glm::vec3 position;
+	glm::vec3 velocity;
+	glm::vec3 acceleration;
 	glm::vec3 size;
 
 	void Draw(ShaderProgram& program) {
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
 		modelMatrix = glm::translate(modelMatrix, glm::vec3(position.x, position.y, 0.0f));
 		program.SetModelMatrix(modelMatrix);
-		//DrawSpriteSheetSprite(program);
+		DrawSpriteSheetSprite(program, index, SPRITE_COUNT_X, SPRITE_COUNT_Y, TILE_SIZE);
 	}
 	void remove() {
 		position.x = 2000.0f;
@@ -81,7 +83,10 @@ public:
 	}
 };
 
-void DrawSpriteSheetSprite(ShaderProgram &program, int index, int spriteCountX, int spriteCountY) {
+Entity player;
+vector<Entity> enemies;
+
+void DrawSpriteSheetSprite(ShaderProgram &program, int index, int spriteCountX, int spriteCountY, float size) {
 	float u = (float)(((int)index) % spriteCountX) / (float)spriteCountX;
 	float v = (float)(((int)index) / spriteCountX) / (float)spriteCountY;
 	float spriteWidth = 1.0 / (float)spriteCountX;
@@ -96,8 +101,8 @@ void DrawSpriteSheetSprite(ShaderProgram &program, int index, int spriteCountX, 
 	u + spriteWidth, v + spriteHeight
 	};
 
-	float vertices[] = { -0.5f, -0.5f, 0.5f, 0.5f, -0.5f, 0.5f, 0.5f, 0.5f, -0.5f,
-	-0.5f, 0.5f, -0.5f };
+	float vertices[] = { -0.5f*size, -0.5f*size, 0.5f*size, 0.5f*size, -0.5f*size, 0.5f*size, 0.5f*size, 0.5f*size, -0.5f*size,
+	-0.5f*size, 0.5f*size, -0.5f*size };
 	// draw this data
 
 
@@ -185,9 +190,8 @@ void Draw(ShaderProgram& program) {
 	glDisableVertexAttribArray(program.texCoordAttribute);
 }
 
-void worldToTileCoordinates(float worldX, float worldY, int *gridX, int *gridY) {
-	*gridX = (int)(worldX / TILE_SIZE);
-	*gridY = (int)(worldY / -TILE_SIZE);
+pair<int, int> worldToTileCoordinates(float worldX, float worldY) {
+	return { (int)(worldX / TILE_SIZE), (int)(worldY / -TILE_SIZE) };
 }
 /*
 void placeEntity(string type, float placeX, float placeY) {
@@ -231,6 +235,18 @@ int main(int argc, char *argv[])
 	SDL_Event event;
 	bool done = false;
 	bool start = false;
+
+	for (FlareMapEntity a : map.entities) {
+		if (a.type == "player") {
+			Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 98);
+			player = newEntity;
+		}
+		else if (a.type == "enemy") {
+			Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 80);
+			enemies.push_back(newEntity);
+		}
+	}
+
 	while (!done) {
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
@@ -241,19 +257,90 @@ int main(int argc, char *argv[])
 					start = true;
 			}
 		}
-
-
-	
-		glClear(GL_COLOR_BUFFER_BIT);
 		float ticks = (float)SDL_GetTicks() / 1000.0f;
 		elapsed = ticks - lastFrameTicks;
 		lastFrameTicks = ticks;
+		glClear(GL_COLOR_BUFFER_BIT);
+
+
+		player.acceleration.x = 0.0f;
+		player.acceleration.y = -1.0f;
+		const Uint8 *keys = SDL_GetKeyboardState(NULL);
+
+		if (keys[SDL_SCANCODE_LEFT]) {
+			player.acceleration.x = -1.0f;
+		}
+		if (keys[SDL_SCANCODE_RIGHT]) {
+			player.acceleration.x = 1.0f;
+		}
+		player.velocity.x = lerp(player.velocity.x, 0.0f, elapsed * friction_x);
+		player.velocity.y = lerp(player.velocity.y, 0.0f, elapsed * friction_y);
+		player.velocity.x += player.acceleration.x * elapsed;
+		player.velocity.y += player.acceleration.y * elapsed;
+		player.position.y += player.velocity.y * elapsed;
+		//check y collision
+		
+		float playerBottom = (player.position.y - player.size.y / 2.0f);
+		pair<int, int> tiledcoord = worldToTileCoordinates(player.position.x, playerBottom);
+		int gridY = tiledcoord.second;
+		int gridX = tiledcoord.first;
+		if (gridY >= 0 && gridX>=0 && map.mapData[gridY][gridX] != 0) {
+			float penetration = fabs((-TILE_SIZE * gridY) - (player.position.y - player.size.y / 2.0f));
+			player.position.y += penetration;
+		}
+
+		for (size_t i = 0; i < enemies.size(); i++) {
+			enemies[i].acceleration.y = -1.0f;
+		}
+
+		for (size_t i = 0; i < enemies.size(); i++) {
+			float enemyBottom = (enemies[i].position.y - enemies[i].size.y / 2.0f);
+			pair<int, int> tiledcoord2 = worldToTileCoordinates(enemies[i].position.x, enemyBottom);
+			int gridY2 = tiledcoord2.second;
+			int gridX2 = tiledcoord2.first;
+			if (gridY2 >= 0 && gridX2 >= 0 && map.mapData[gridY2][gridX2] != 0) {
+				float penetration2 = fabs((-TILE_SIZE * gridY2) - (enemies[i].position.y - enemies[i].size.y / 2.0f));
+				enemies[i].position.y += penetration2;
+			}
+		}
+
+		player.position.x += player.velocity.x * elapsed;
+		//check x collision
+
+		for (size_t i = 0; i < enemies.size(); i++) {
+			float p1 = (abs(enemies[i].position.x - player.position.x) - ((enemies[i].size.x) + (player.size.x)) / 2.0f);
+			float p2 = (abs(enemies[i].position.y - player.position.y) - ((enemies[i].size.y) + (player.size.y)) / 2.0f);
+			if (p1 < 0 && p2 < 0) {
+				enemies[i].remove();
+			}
+		}
+
+
+		for (size_t i = 0; i < enemies.size(); i++) {
+			enemies[i].acceleration.x = -0.5f;
+			enemies[i].velocity.x = lerp(enemies[i].velocity.x, 0.0f, elapsed * friction_x);
+			enemies[i].velocity.y = lerp(enemies[i].velocity.y, 0.0f, elapsed * friction_y);
+			enemies[i].velocity.x += enemies[i].acceleration.x * elapsed;
+			enemies[i].velocity.y += enemies[i].acceleration.y * elapsed;
+			enemies[i].position.y += enemies[i].velocity.y * elapsed;
+			enemies[i].position.x += enemies[i].velocity.x * elapsed;
+		}
+
+
+
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
 		program.SetModelMatrix(modelMatrix);
-		glm::mat4 viewMatrix = glm::mat4(1.0f);
-		viewMatrix = glm::translate(viewMatrix, glm::vec3(-1.777f, 1.0f, 0.0f));
-		program.SetViewMatrix(viewMatrix);
+		
+		
 		Draw(program);
+		glm::mat4 viewMatrix = glm::mat4(1.0f);
+		viewMatrix = glm::translate(viewMatrix, glm::vec3(-player.position.x, -player.position.y, 0.0f));
+		program.SetViewMatrix(viewMatrix);
+		
+		player.Draw(program);
+		for (size_t i = 0; i < enemies.size(); i++) {
+			enemies[i].Draw(program);
+		}
 
 
 		SDL_GL_SwapWindow(displayWindow);
