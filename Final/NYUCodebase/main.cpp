@@ -193,7 +193,7 @@ public:
 
 	void Draw(ShaderProgram& program) {
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
-		modelMatrix = glm::translate(modelMatrix, glm::vec3(position.x, position.y, 0.0f));
+		modelMatrix = glm::translate(modelMatrix, glm::vec3(position.x+TILE_SIZE/2, position.y+TILE_SIZE/2, 0.0f));
 		program.SetModelMatrix(modelMatrix);
 		DrawSpriteSheetSprite(program, index, SPRITE_COUNT_X, SPRITE_COUNT_Y, TILE_SIZE);
 	}
