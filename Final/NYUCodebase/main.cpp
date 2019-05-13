@@ -181,11 +181,11 @@ public:
 	string type;
 	float timeAlive;
 	string bullet_type = "default";
-	string facing;
+	string facing = "left";
 	int health = 100;
 
 	glm::vec3 position;
-	glm::vec3 velocity;
+	glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 acceleration;
 	glm::vec3 size;
 
@@ -223,6 +223,7 @@ public:
 				bullets2.push_back(newBullet);
 			}
 			Mix_PlayChannel(-1, DefaultGunSound, 0);
+		
 		}
 		if (bullet_type == "Heavy") {
 			Entity newBullet;
@@ -570,10 +571,32 @@ void UpdateGameLevel(float elapsed) {
 			player2.shootBullet();
 		}
 	}
+	if (keys[SDL_SCANCODE_RIGHTBRACKET]) {
+		if (mode == STATE_GAME_LEVEL_1 || mode == STATE_GAME_LEVEL_2 || mode == STATE_GAME_LEVEL_3) {
+			for (size_t i = 0; i < state.items.size(); i++) {
+				float p1 = (abs(state.items[i].position.x - state.player1.position.x) - ((state.items[i].size.x) + (state.player1.size.x)) / 2.0f);
+				float p2 = (abs(state.items[i].position.y - state.player1.position.y) - ((state.items[i].size.y) + (state.player1.size.y)) / 2.0f);
+				if (p1 < 0 && p2 < 0) {
+					state.player1.pickup(items[i].type);
+				}
+			}
+		}
+	}
+	if (keys[SDL_SCANCODE_TAB]) {
+		if (mode == STATE_GAME_LEVEL_1 || mode == STATE_GAME_LEVEL_2 || mode == STATE_GAME_LEVEL_3) {
+			for (size_t i = 0; i < state.items.size(); i++) {
+				float p1 = (abs(state.items[i].position.x - state.player2.position.x) - ((state.items[i].size.x) + (state.player2.size.x)) / 2.0f);
+				float p2 = (abs(state.items[i].position.y - state.player2.position.y) - ((state.items[i].size.y) + (state.player2.size.y)) / 2.0f);
+				if (p1 < 0 && p2 < 0) {
+					state.player2.pickup(items[i].type);
+				}
+			}
+		}
+	}
 
 	for (size_t i = 0; i < state.bullets1.size(); i++) {
-		state.bullets1[i].position.x += state.bullets1[i].velocity.x;
-		state.bullets1[i].position.y += state.bullets1[i].velocity.y;
+		state.bullets1[i].position.x += state.bullets1[i].velocity.x*elapsed;
+		state.bullets1[i].position.y += state.bullets1[i].velocity.y*elapsed;
 		for (size_t i = 0; i < state.bullets1.size(); i++) {
 			float p1 = (abs(state.bullets1[i].position.x - state.player2.position.x) - ((state.bullets1[i].size.x) + (state.player2.size.x)) / 2.0f);
 			float p2 = (abs(state.bullets1[i].position.y - state.player2.position.y) - ((state.bullets1[i].size.y) + (state.player2.size.y)) / 2.0f);
@@ -596,8 +619,8 @@ void UpdateGameLevel(float elapsed) {
 	}
 
 	for (size_t i = 0; i < state.bullets1.size(); i++) {
-		state.bullets1[i].position.x += state.bullets1[i].velocity.x;
-		state.bullets1[i].position.y += state.bullets1[i].velocity.y;
+		state.bullets1[i].position.x += state.bullets1[i].velocity.x*elapsed;
+		state.bullets1[i].position.y += state.bullets1[i].velocity.y*elapsed;
 		for (size_t i = 0; i < state.bullets2.size(); i++) {
 			float p1 = (abs(state.bullets2[i].position.x - state.player1.position.x) - ((state.bullets2[i].size.x) + (state.player1.size.x)) / 2.0f);
 			float p2 = (abs(state.bullets2[i].position.y - state.player1.position.y) - ((state.bullets2[i].size.y) + (state.player1.size.y)) / 2.0f);
@@ -794,17 +817,17 @@ int main(int argc, char *argv[])
 						}
 						else if (a.type == "Heavy") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 8);
-							newEntity.bullet_type = "Heavy";
+							newEntity.type = "Heavy";
 							state.items.push_back(newEntity);
 						}
 						else if (a.type == "Wave") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 37);
-							newEntity.bullet_type = "Wave";
+							newEntity.type = "Wave";
 							state.items.push_back(newEntity);
 						}
 						else if (a.type == "Spark") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 48);
-							newEntity.bullet_type = "Spark";
+							newEntity.type = "Spark";
 							state.items.push_back(newEntity);
 						}
 					}
@@ -829,17 +852,17 @@ int main(int argc, char *argv[])
 						}
 						else if (a.type == "Heavy") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 8);
-							newEntity.bullet_type = "Heavy";
+							newEntity.type = "Heavy";
 							state.items.push_back(newEntity);
 						}
 						else if (a.type == "Wave") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 37);
-							newEntity.bullet_type = "Wave";
+							newEntity.type = "Wave";
 							state.items.push_back(newEntity);
 						}
 						else if (a.type == "Spark") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 48);
-							newEntity.bullet_type = "Spark";
+							newEntity.type = "Spark";
 							state.items.push_back(newEntity);
 						}
 					}
@@ -864,17 +887,17 @@ int main(int argc, char *argv[])
 						}
 						else if (a.type == "Heavy") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 8);
-							newEntity.bullet_type = "Heavy";
+							newEntity.type = "Heavy";
 							state.items.push_back(newEntity);
 						}
 						else if (a.type == "Wave") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 37);
-							newEntity.bullet_type = "Wave";
+							newEntity.type = "Wave";
 							state.items.push_back(newEntity);
 						}
 						else if (a.type == "Spark") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 48);
-							newEntity.bullet_type = "Spark";
+							newEntity.type = "Spark";
 							state.items.push_back(newEntity);
 						}
 					}
