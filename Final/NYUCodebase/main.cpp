@@ -463,6 +463,7 @@ Entity player2;
 void UpdateMainMenu(float elapsed) {}
 
 void RenderGameLevel1() {
+	Draw(program);
 	state.player1.Draw(program);
 	state.player2.Draw(program);
 	for (size_t i = 0; i < state.bullets1.size(); i++) {
@@ -477,6 +478,7 @@ void RenderGameLevel1() {
 }
 
 void RenderGameLevel2() {
+	Draw(program);
 	state.player1.Draw(program);
 	state.player2.Draw(program);
 	for (size_t i = 0; i < state.bullets1.size(); i++) {
@@ -491,6 +493,7 @@ void RenderGameLevel2() {
 }
 
 void RenderGameLevel3() {
+	Draw(program);
 	state.player1.Draw(program);
 	state.player2.Draw(program);
 	for (size_t i = 0; i < state.bullets1.size(); i++) {
@@ -538,7 +541,7 @@ void UpdateGameLevel(float elapsed) {
 		state.player2.position.y += state.player2.velocity.y * elapsed;
 		state.player2.facing = "down";
 	}
-
+	/*
 	float playerBottom = (state.player1.position.y - state.player1.size.y / 2.0f);
 	float playerTop = (state.player1.position.y + state.player1.size.y / 2.0f);
 	pair<int, int> tiledcoord = worldToTileCoordinates(state.player1.position.x, playerBottom);
@@ -557,6 +560,7 @@ void UpdateGameLevel(float elapsed) {
 		float penetration = fabs((-TILE_SIZE * gridY2) - (state.player2.position.y - state.player2.size.y / 2.0f));
 		state.player2.position.y += penetration;
 	}
+	*/
 	for (size_t i = 0; i < state.bullets1.size(); i++) {
 		state.bullets1[i].position.x += state.bullets1[i].velocity.x;
 		state.bullets1[i].position.y += state.bullets1[i].velocity.y;
@@ -614,12 +618,8 @@ void UpdateGameLevel(float elapsed) {
 		mode = STATE_GAME_OVER;
 	}
 
-	Draw(program);
-	state.player1.Draw(program);
-	state.player2.Draw(program);
-	for (size_t i = 0; i < state.items.size(); i++) {
-		state.items[i].Draw(program);
-	}
+	glm::mat4 modelMatrix = glm::mat4(1.0f);
+	program.SetModelMatrix(modelMatrix);
 
 
 }
@@ -691,7 +691,7 @@ void Update(float elapsed) {
 int main(int argc, char *argv[])
 {
 	SDL_Init(SDL_INIT_VIDEO);
-	displayWindow = SDL_CreateWindow("Final Game.", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 360, SDL_WINDOW_OPENGL);
+	displayWindow = SDL_CreateWindow("Final Game.", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 640, SDL_WINDOW_OPENGL);
 	SDL_GLContext context = SDL_GL_CreateContext(displayWindow);
 	SDL_GL_MakeCurrent(displayWindow, context);
 
@@ -705,7 +705,7 @@ int main(int argc, char *argv[])
 
 	glm::mat4 projectionMatrix = glm::mat4(1.0f);
 	glm::mat4 viewMatrix = glm::mat4(1.0f);
-
+	
 	projectionMatrix = glm::ortho(-1.777f, 1.777f, -1.0f, 1.0f, -1.0f, 1.0f);
 
 	program.SetViewMatrix(viewMatrix);
@@ -736,9 +736,10 @@ int main(int argc, char *argv[])
 
 	Mix_Chunk *SparkGunSound;
 	SparkGunSound = Mix_LoadWAV("sparkgunsound.wav");
-
+//	Mix_PlayChannel(-1, SparkGunSound, 5);
 	Mix_Music *music;
 	music = Mix_LoadMUS("8-Bit-Mayhem.mp3");
+	//Mix_PlayMusic(music, -1);
 
 	glUseProgram(program.programID);
 
@@ -746,6 +747,7 @@ int main(int argc, char *argv[])
 	bool done = false;
 
 	while (!done) {
+	
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
 				done = true;
@@ -768,28 +770,28 @@ int main(int argc, char *argv[])
 					for (FlareMapEntity a : map.entities) {
 						if (a.type == "Player1") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 75);
-							player1 = newEntity;
-							player1.type = "player1";
+							state.player1 = newEntity;
+							state.player1.type = "player1";
 						}
 						if (a.type == "Player2") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 59);
-							player2 = newEntity;
-							player2.type = "player2";
+							state.player2 = newEntity;
+							state.player2.type = "player2";
 						}
 						else if (a.type == "Heavy") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 8);
 							newEntity.bullet_type = "Heavy";
-							items.push_back(newEntity);
+							state.items.push_back(newEntity);
 						}
 						else if (a.type == "Wave") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 37);
 							newEntity.bullet_type = "Wave";
-							items.push_back(newEntity);
+							state.items.push_back(newEntity);
 						}
 						else if (a.type == "Spark") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 48);
 							newEntity.bullet_type = "Spark";
-							items.push_back(newEntity);
+							state.items.push_back(newEntity);
 						}
 					}
 				}
@@ -799,26 +801,28 @@ int main(int argc, char *argv[])
 					for (FlareMapEntity a : map.entities) {
 						if (a.type == "Player1") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 75);
-							player1 = newEntity;
+							state.player1 = newEntity;
+							state.player1.type = "player1";
 						}
 						if (a.type == "Player2") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 59);
-							player2 = newEntity;
+							state.player2 = newEntity;
+							state.player2.type = "player2";
 						}
 						else if (a.type == "Heavy") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 8);
 							newEntity.bullet_type = "Heavy";
-							items.push_back(newEntity);
+							state.items.push_back(newEntity);
 						}
 						else if (a.type == "Wave") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 37);
 							newEntity.bullet_type = "Wave";
-							items.push_back(newEntity);
+							state.items.push_back(newEntity);
 						}
 						else if (a.type == "Spark") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 48);
 							newEntity.bullet_type = "Spark";
-							items.push_back(newEntity);
+							state.items.push_back(newEntity);
 						}
 					}
 				}
@@ -828,26 +832,28 @@ int main(int argc, char *argv[])
 					for (FlareMapEntity a : map.entities) {
 						if (a.type == "Player1") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 75);
-							player1 = newEntity;
+							state.player1 = newEntity;
+							state.player1.type = "player1";
 						}
 						if (a.type == "Player2") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 59);
-							player2 = newEntity;
+							state.player2 = newEntity;
+							state.player2.type = "player2";
 						}
 						else if (a.type == "Heavy") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 8);
 							newEntity.bullet_type = "Heavy";
-							items.push_back(newEntity);
+							state.items.push_back(newEntity);
 						}
 						else if (a.type == "Wave") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 37);
 							newEntity.bullet_type = "Wave";
-							items.push_back(newEntity);
+							state.items.push_back(newEntity);
 						}
 						else if (a.type == "Spark") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 48);
 							newEntity.bullet_type = "Spark";
-							items.push_back(newEntity);
+							state.items.push_back(newEntity);
 						}
 					}
 				}
