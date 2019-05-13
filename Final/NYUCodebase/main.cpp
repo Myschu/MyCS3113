@@ -46,8 +46,6 @@ float friction_x = 0.5f;
 float friction_y = 0.5f;
 GLuint spriteTexture;
 void DrawSpriteSheetSprite(ShaderProgram &program, int index, int spriteCountX, int spriteCountY, float size);
-int Mix_OpenAudio(int frequency, Uint16 format, int channels, int chunksize);
-
 Mix_Chunk *DefaultGunSound;
 Mix_Chunk *HeavyGunSound;
 Mix_Chunk *WaveGunSound;
@@ -194,6 +192,7 @@ public:
 	void Draw(ShaderProgram& program) {
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
 		modelMatrix = glm::translate(modelMatrix, glm::vec3(position.x+TILE_SIZE/2, position.y+TILE_SIZE/2, 0.0f));
+
 		program.SetModelMatrix(modelMatrix);
 		DrawSpriteSheetSprite(program, index, SPRITE_COUNT_X, SPRITE_COUNT_Y, TILE_SIZE);
 	}
@@ -518,11 +517,11 @@ void UpdateGameLevel(float elapsed) {
 		state.player1.facing = "right";
 	}
 	if (keys[SDL_SCANCODE_UP]) {
-		state.player1.position.y -= state.player1.velocity.y*elapsed;
+		state.player1.position.y += state.player1.velocity.y*elapsed;
 		state.player1.facing = "up";
 	}
 	else if (keys[SDL_SCANCODE_DOWN]) {
-		state.player1.position.y += state.player1.velocity.y * elapsed;
+		state.player1.position.y -= state.player1.velocity.y * elapsed;
 		state.player1.facing = "down";
 	}
 	if (keys[SDL_SCANCODE_A]) {
@@ -534,11 +533,11 @@ void UpdateGameLevel(float elapsed) {
 		state.player2.facing = "right";
 	}
 	if (keys[SDL_SCANCODE_W]) {
-		state.player2.position.y -= state.player2.velocity.y*elapsed;
+		state.player2.position.y += state.player2.velocity.y*elapsed;
 		state.player2.facing = "up";
 	}
 	else if (keys[SDL_SCANCODE_S]) {
-		state.player2.position.y += state.player2.velocity.y * elapsed;
+		state.player2.position.y -= state.player2.velocity.y * elapsed;
 		state.player2.facing = "down";
 	}
 	/*
@@ -561,6 +560,17 @@ void UpdateGameLevel(float elapsed) {
 		state.player2.position.y += penetration;
 	}
 	*/
+	if (keys[SDL_SCANCODE_RSHIFT]) {
+		if (mode == STATE_GAME_LEVEL_1 || mode == STATE_GAME_LEVEL_2 || mode == STATE_GAME_LEVEL_3) {
+			player1.shootBullet();
+		}
+	}
+	if (keys[SDL_SCANCODE_LSHIFT]) {
+		if (mode == STATE_GAME_LEVEL_1 || mode == STATE_GAME_LEVEL_2 || mode == STATE_GAME_LEVEL_3) {
+			player2.shootBullet();
+		}
+	}
+
 	for (size_t i = 0; i < state.bullets1.size(); i++) {
 		state.bullets1[i].position.x += state.bullets1[i].velocity.x;
 		state.bullets1[i].position.y += state.bullets1[i].velocity.y;
@@ -772,11 +782,15 @@ int main(int argc, char *argv[])
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 75);
 							state.player1 = newEntity;
 							state.player1.type = "player1";
+							state.player1.velocity.x = 0.8f;
+							state.player1.velocity.y = 0.8f;
 						}
 						if (a.type == "Player2") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 59);
 							state.player2 = newEntity;
 							state.player2.type = "player2";
+							state.player2.velocity.x = 0.8f;
+							state.player2.velocity.y = 0.8f;
 						}
 						else if (a.type == "Heavy") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 8);
@@ -803,11 +817,15 @@ int main(int argc, char *argv[])
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 75);
 							state.player1 = newEntity;
 							state.player1.type = "player1";
+							state.player1.velocity.x = 0.8f;
+							state.player1.velocity.y = 0.8f;
 						}
 						if (a.type == "Player2") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 59);
 							state.player2 = newEntity;
 							state.player2.type = "player2";
+							state.player2.velocity.x = 0.8f;
+							state.player2.velocity.y = 0.8f;
 						}
 						else if (a.type == "Heavy") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 8);
@@ -834,11 +852,15 @@ int main(int argc, char *argv[])
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 75);
 							state.player1 = newEntity;
 							state.player1.type = "player1";
+							state.player1.velocity.x = 0.8f;
+							state.player1.velocity.y = 0.8f;
 						}
 						if (a.type == "Player2") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 59);
 							state.player2 = newEntity;
 							state.player2.type = "player2";
+							state.player2.velocity.x = 0.8f;
+							state.player2.velocity.y = 0.8f;
 						}
 						else if (a.type == "Heavy") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 8);
@@ -855,16 +877,6 @@ int main(int argc, char *argv[])
 							newEntity.bullet_type = "Spark";
 							state.items.push_back(newEntity);
 						}
-					}
-				}
-				if (event.key.keysym.scancode == SDL_SCANCODE_RSHIFT) {
-					if (mode == STATE_GAME_LEVEL_1 || mode == STATE_GAME_LEVEL_2 || mode == STATE_GAME_LEVEL_3) {
-						player1.shootBullet();
-					}
-				}
-				if (event.key.keysym.scancode == SDL_SCANCODE_LSHIFT) {
-					if (mode == STATE_GAME_LEVEL_1 || mode == STATE_GAME_LEVEL_2 || mode == STATE_GAME_LEVEL_3) {
-						player2.shootBullet();
 					}
 				}
 			}
