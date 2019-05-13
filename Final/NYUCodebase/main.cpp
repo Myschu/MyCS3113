@@ -8,6 +8,7 @@
 #define GL_GLEXT_PROTOTYPES 1
 #include <SDL_opengl.h>
 #include <SDL_image.h>
+#include <SDL_mixer.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "ShaderProgram.h"
@@ -155,11 +156,9 @@ pair<int, int> worldToTileCoordinates(float worldX, float worldY) {
 	return { (int)(worldX / TILE_SIZE), (int)(worldY / -TILE_SIZE) };
 }
 
-vector<Entity> bullets;
+vector<Entity> bullets1;
+vector<Entity> bullets2;
 vector<Entity> items;
-SheetSprite mySprite1;
-SheetSprite mySprite2;
-SheetSprite mySprite3;
 
 class Entity {
 public:
@@ -177,8 +176,9 @@ public:
 	int index;
 	string type;
 	float timeAlive;
-	string bullet_type;
+	string bullet_type = "default";
 	string facing;
+	int health = 100;
 
 	glm::vec3 position;
 	glm::vec3 velocity;
@@ -193,14 +193,118 @@ public:
 	}
 
 	void shootBullet() {
-		Entity newBullet;
-		newBullet.position.x = position.x;
-		newBullet.position.y = position.y;
-		newBullet.sprite = mySprite3;
-		newBullet.velocity.y = 2.0f;
-		newBullet.timeAlive = 0.0f;
-		newBullet.size = glm::vec3(mySprite3.size * mySprite3.width / mySprite3.height, mySprite3.size, 0.0f);
-		bullets.push_back(newBullet);
+		if (bullet_type == "default") {
+			Entity newBullet;
+			newBullet.position.x = position.x;
+			newBullet.position.y = position.y;
+			DrawSpriteSheetSprite(program, 26, SPRITE_COUNT_X, SPRITE_COUNT_Y, TILE_SIZE);
+			if (facing == "up") {
+				newBullet.velocity.y = 1.5f;
+			}
+			else if (facing == "down") {
+				newBullet.velocity.y = -1.5f;
+			}
+			else if (facing == "left") {
+				newBullet.velocity.x = -1.5f;
+			}
+			else if (facing == "right") {
+				newBullet.velocity.x = 1.5f;
+			}
+			newBullet.timeAlive = 0.0f;
+			if (type == "player1") {
+				bullets1.push_back(newBullet);
+			}
+			else if (type == "player2") {
+				bullets2.push_back(newBullet);
+			}
+		}
+		if (bullet_type == "Heavy") {
+			Entity newBullet;
+			newBullet.position.x = position.x;
+			newBullet.position.y = position.y;
+			DrawSpriteSheetSprite(program, 8, SPRITE_COUNT_X, SPRITE_COUNT_Y, TILE_SIZE);
+			if (facing == "up") {
+				newBullet.velocity.y = 1.0f;
+			}
+			else if (facing == "down") {
+				newBullet.velocity.y = -1.0f;
+			}
+			else if (facing == "left") {
+				newBullet.velocity.x = -1.0f;
+			}
+			else if (facing == "right") {
+				newBullet.velocity.x = 1.0f;
+			}
+			newBullet.timeAlive = 0.0f;
+			if (type == "player1") {
+				bullets1.push_back(newBullet);
+			}
+			else if (type == "player2") {
+				bullets2.push_back(newBullet);
+			}
+		}
+		if (bullet_type == "Wave") {
+			Entity newBullet;
+			newBullet.position.x = position.x;
+			newBullet.position.y = position.y;
+			DrawSpriteSheetSprite(program, 37, SPRITE_COUNT_X, SPRITE_COUNT_Y, TILE_SIZE);
+			if (facing == "up") {
+				newBullet.velocity.y = 2.0f;
+			}
+			else if (facing == "down") {
+				newBullet.velocity.y = -2.0f;
+			}
+			else if (facing == "left") {
+				newBullet.velocity.x = -2.0f;
+			}
+			else if (facing == "right") {
+				newBullet.velocity.x = 2.0f;
+			}
+			newBullet.timeAlive = 0.0f;
+			if (type == "player1") {
+				bullets1.push_back(newBullet);
+			}
+			else if (type == "player2") {
+				bullets2.push_back(newBullet);
+			}
+		}
+		if (bullet_type == "Spark") {
+			Entity newBullet;
+			newBullet.position.x = position.x;
+			newBullet.position.y = position.y;
+			DrawSpriteSheetSprite(program, 248, SPRITE_COUNT_X, SPRITE_COUNT_Y, TILE_SIZE);
+			if (facing == "up") {
+				newBullet.velocity.y = 10.0f;
+			}
+			else if (facing == "down") {
+				newBullet.velocity.y = -10.0f;
+			}
+			else if (facing == "left") {
+				newBullet.velocity.x = -10.0f;
+			}
+			else if (facing == "right") {
+				newBullet.velocity.x = 10.0f;
+			}
+			newBullet.timeAlive = 0.0f;
+			if (type == "player1") {
+				bullets1.push_back(newBullet);
+			}
+			else if (type == "player2") {
+				bullets2.push_back(newBullet);
+			}
+		}
+
+	}
+	void remove() {
+		position.x = 2000.0f;
+		position.y = 3000.0f;
+	}
+	void pickup(string type) {
+		bullet_type = type;
+	}
+
+	void ishit(int value) {
+		health -= value;
 	}
 };
 
@@ -281,7 +385,8 @@ void DrawText(ShaderProgram program, int fontTexture, std::string text, float si
 struct GameState {
 	Entity player1;
 	Entity player2;
-	vector<Entity> bullets;
+	vector<Entity> bullets1;
+	vector<Entity> bullets2;
 	vector<Entity> items;
 };
 
@@ -350,8 +455,11 @@ void UpdateMainMenu(float elapsed) {}
 void RenderGameLevel1() {
 	state.player1.Draw(program);
 	state.player2.Draw(program);
-	for (size_t i = 0; i < state.bullets.size(); i++) {
-		state.bullets[i].Draw(program);
+	for (size_t i = 0; i < state.bullets1.size(); i++) {
+		state.bullets1[i].Draw(program);
+	}
+	for (size_t i = 0; i < state.bullets2.size(); i++) {
+		state.bullets2[i].Draw(program);
 	}
 	for (size_t i = 0; i < state.items.size(); i++) {
 		state.items[i].Draw(program);
@@ -361,8 +469,11 @@ void RenderGameLevel1() {
 void RenderGameLevel2() {
 	state.player1.Draw(program);
 	state.player2.Draw(program);
-	for (size_t i = 0; i < state.bullets.size(); i++) {
-		state.bullets[i].Draw(program);
+	for (size_t i = 0; i < state.bullets1.size(); i++) {
+		state.bullets1[i].Draw(program);
+	}
+	for (size_t i = 0; i < state.bullets2.size(); i++) {
+		state.bullets2[i].Draw(program);
 	}
 	for (size_t i = 0; i < state.items.size(); i++) {
 		state.items[i].Draw(program);
@@ -372,8 +483,11 @@ void RenderGameLevel2() {
 void RenderGameLevel3() {
 	state.player1.Draw(program);
 	state.player2.Draw(program);
-	for (size_t i = 0; i < state.bullets.size(); i++) {
-		state.bullets[i].Draw(program);
+	for (size_t i = 0; i < state.bullets1.size(); i++) {
+		state.bullets1[i].Draw(program);
+	}
+	for (size_t i = 0; i < state.bullets2.size(); i++) {
+		state.bullets2[i].Draw(program);
 	}
 	for (size_t i = 0; i < state.items.size(); i++) {
 		state.items[i].Draw(program);
@@ -433,6 +547,63 @@ void UpdateGameLevel(float elapsed) {
 		float penetration = fabs((-TILE_SIZE * gridY2) - (state.player2.position.y - state.player2.size.y / 2.0f));
 		state.player2.position.y += penetration;
 	}
+	for (size_t i = 0; i < state.bullets1.size(); i++) {
+		state.bullets1[i].position.x += state.bullets1[i].velocity.x;
+		state.bullets1[i].position.y += state.bullets1[i].velocity.y;
+		for (size_t i = 0; i < state.bullets1.size(); i++) {
+			float p1 = (abs(state.bullets1[i].position.x - state.player2.position.x) - ((state.bullets1[i].size.x) + (state.player2.size.x)) / 2.0f);
+			float p2 = (abs(state.bullets1[i].position.y - state.player2.position.y) - ((state.bullets1[i].size.y) + (state.player2.size.y)) / 2.0f);
+			if (p1 < 0 && p2 < 0) {
+				state.bullets1[i].remove();
+				if (state.bullets1[i].type == "default") {
+					state.player2.ishit(10);
+				}
+				if (state.bullets1[i].type == "Heavy") {
+					state.player2.ishit(50);
+				}
+				if (state.bullets1[i].type == "Wave") {
+					state.player2.ishit(25);
+				}
+				if (state.bullets1[i].type == "Spark") {
+					state.player2.ishit(15);
+				}
+			}
+		}
+	}
+
+	for (size_t i = 0; i < state.bullets1.size(); i++) {
+		state.bullets1[i].position.x += state.bullets1[i].velocity.x;
+		state.bullets1[i].position.y += state.bullets1[i].velocity.y;
+		for (size_t i = 0; i < state.bullets2.size(); i++) {
+			float p1 = (abs(state.bullets2[i].position.x - state.player1.position.x) - ((state.bullets2[i].size.x) + (state.player1.size.x)) / 2.0f);
+			float p2 = (abs(state.bullets2[i].position.y - state.player1.position.y) - ((state.bullets2[i].size.y) + (state.player1.size.y)) / 2.0f);
+			if (p1 < 0 && p2 < 0) {
+				state.bullets2[i].remove();
+				if (state.bullets2[i].type == "default") {
+					state.player1.ishit(10);
+				}
+				if (state.bullets2[i].type == "Heavy") {
+					state.player1.ishit(50);
+				}
+				if (state.bullets2[i].type == "Wave") {
+					state.player1.ishit(25);
+				}
+				if (state.bullets2[i].type == "Spark") {
+					state.player1.ishit(15);
+				}
+			}
+		}
+	}
+
+
+
+	if (state.player1.health <= 0) {
+		mode = STATE_GAME_OVER;
+	}
+	if (state.player2.health <= 0) {
+		mode = STATE_GAME_OVER;
+	}
+
 	Draw(program);
 	state.player1.Draw(program);
 	state.player2.Draw(program);
@@ -539,7 +710,8 @@ int main(int argc, char *argv[])
 	state.player1 = player1;
 	state.player2 = player2;
 	state.items = items;
-	state.bullets = bullets;
+	state.bullets1 = bullets1;
+	state.bullets2 = bullets2;
 
 
 	glUseProgram(program.programID);
@@ -572,10 +744,12 @@ int main(int argc, char *argv[])
 						if (a.type == "Player1") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 75);
 							player1 = newEntity;
+							player1.type = "player1";
 						}
 						if (a.type == "Player2") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 59);
 							player2 = newEntity;
+							player2.type = "player2";
 						}
 						else if (a.type == "Heavy") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 8);
