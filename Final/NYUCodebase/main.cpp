@@ -46,6 +46,12 @@ float friction_x = 0.5f;
 float friction_y = 0.5f;
 GLuint spriteTexture;
 void DrawSpriteSheetSprite(ShaderProgram &program, int index, int spriteCountX, int spriteCountY, float size);
+int Mix_OpenAudio(int frequency, Uint16 format, int channels, int chunksize);
+
+Mix_Chunk *DefaultGunSound;
+Mix_Chunk *HeavyGunSound;
+Mix_Chunk *WaveGunSound;
+Mix_Chunk *SparkGunSound;
 GLuint fontTexture;
 class Entity;
 
@@ -217,6 +223,7 @@ public:
 			else if (type == "player2") {
 				bullets2.push_back(newBullet);
 			}
+			Mix_PlayChannel(-1, DefaultGunSound, 0);
 		}
 		if (bullet_type == "Heavy") {
 			Entity newBullet;
@@ -242,6 +249,7 @@ public:
 			else if (type == "player2") {
 				bullets2.push_back(newBullet);
 			}
+			Mix_PlayChannel(-1, HeavyGunSound, 0);
 		}
 		if (bullet_type == "Wave") {
 			Entity newBullet;
@@ -267,6 +275,7 @@ public:
 			else if (type == "player2") {
 				bullets2.push_back(newBullet);
 			}
+			Mix_PlayChannel(-1, WaveGunSound, 0);
 		}
 		if (bullet_type == "Spark") {
 			Entity newBullet;
@@ -292,6 +301,7 @@ public:
 			else if (type == "player2") {
 				bullets2.push_back(newBullet);
 			}
+			Mix_PlayChannel(-1, SparkGunSound, 0);
 		}
 
 	}
@@ -713,6 +723,22 @@ int main(int argc, char *argv[])
 	state.bullets1 = bullets1;
 	state.bullets2 = bullets2;
 
+	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
+
+	Mix_Chunk *DefaultGunSound;
+	DefaultGunSound = Mix_LoadWAV("defaultgunsound.wav");
+
+	Mix_Chunk *HeavyGunSound;
+	HeavyGunSound = Mix_LoadWAV("heavygunsound.wav");
+
+	Mix_Chunk *WaveGunSound;
+	WaveGunSound = Mix_LoadWAV("wavegunsound.wav");
+
+	Mix_Chunk *SparkGunSound;
+	SparkGunSound = Mix_LoadWAV("sparkgunsound.wav");
+
+	Mix_Music *music;
+	music = Mix_LoadMUS("8-Bit-Mayhem.mp3");
 
 	glUseProgram(program.programID);
 
@@ -720,7 +746,6 @@ int main(int argc, char *argv[])
 	bool done = false;
 
 	while (!done) {
-
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
 				done = true;
