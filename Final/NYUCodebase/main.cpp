@@ -509,35 +509,35 @@ void RenderGameLevel3() {
 
 void UpdateGameLevel(float elapsed) {
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
-	if (keys[SDL_SCANCODE_LEFT] && state.player1.position.x - state.player1.size.x / 2.0f > -1.777f) {
+	if (keys[SDL_SCANCODE_LEFT]) {
 		state.player1.position.x -= state.player1.velocity.x*elapsed;
 		state.player1.facing = "left";
 	}
-	else if (keys[SDL_SCANCODE_RIGHT] && state.player1.position.x + state.player1.size.x / 2.0f < 1.777f) {
+	else if (keys[SDL_SCANCODE_RIGHT]) {
 		state.player1.position.x += state.player1.velocity.x * elapsed;
 		state.player1.facing = "right";
 	}
-	if (keys[SDL_SCANCODE_UP] && state.player1.position.y - state.player1.size.y / 2.0f > -1.0f) {
+	if (keys[SDL_SCANCODE_UP]) {
 		state.player1.position.y -= state.player1.velocity.y*elapsed;
 		state.player1.facing = "up";
 	}
-	else if (keys[SDL_SCANCODE_DOWN] && state.player1.position.x + state.player1.size.x / 2.0f < 1.0f) {
+	else if (keys[SDL_SCANCODE_DOWN]) {
 		state.player1.position.y += state.player1.velocity.y * elapsed;
 		state.player1.facing = "down";
 	}
-	if (keys[SDL_SCANCODE_A] && state.player2.position.x - state.player2.size.x / 2.0f > -1.777f) {
+	if (keys[SDL_SCANCODE_A]) {
 		state.player2.position.x -= state.player2.velocity.x*elapsed;
 		state.player2.facing = "left";
 	}
-	else if (keys[SDL_SCANCODE_D] && state.player2.position.x + state.player2.size.x / 2.0f < 1.777f) {
+	else if (keys[SDL_SCANCODE_D]) {
 		state.player2.position.x += state.player2.velocity.x * elapsed;
 		state.player2.facing = "right";
 	}
-	if (keys[SDL_SCANCODE_W] && state.player2.position.y - state.player2.size.y / 2.0f > -1.0f) {
+	if (keys[SDL_SCANCODE_W]) {
 		state.player2.position.y -= state.player2.velocity.y*elapsed;
 		state.player2.facing = "up";
 	}
-	else if (keys[SDL_SCANCODE_S] && state.player2.position.y + state.player2.size.y / 2.0f < 1.0f) {
+	else if (keys[SDL_SCANCODE_S]) {
 		state.player2.position.y += state.player2.velocity.y * elapsed;
 		state.player2.facing = "down";
 	}
