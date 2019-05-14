@@ -206,6 +206,7 @@ public:
 	string bullet_type = "default";
 	string facing = "left";
 	int health = 100;
+	float sincelastshot = 0;
 
 	glm::vec3 position;
 	glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -218,115 +219,6 @@ public:
 
 		program.SetModelMatrix(modelMatrix);
 		DrawSpriteSheetSprite(program, index, SPRITE_COUNT_X, SPRITE_COUNT_Y, TILE_SIZE);
-	}
-
-	void shootBullet() {
-		if (bullet_type == "default") {
-			Entity newBullet;
-			newBullet.position.x = position.x;
-			newBullet.position.y = position.y;
-			DrawSpriteSheetSprite(program, 26, SPRITE_COUNT_X, SPRITE_COUNT_Y, TILE_SIZE);
-			if (facing == "up") {
-				newBullet.velocity.y = 1.5f;
-			}
-			else if (facing == "down") {
-				newBullet.velocity.y = -1.5f;
-			}
-			else if (facing == "left") {
-				newBullet.velocity.x = -1.5f;
-			}
-			else if (facing == "right") {
-				newBullet.velocity.x = 1.5f;
-			}
-			newBullet.timeAlive = 0.0f;
-			if (type == "player1") {
-				bullets1.push_back(newBullet);
-			}
-			else if (type == "player2") {
-				bullets2.push_back(newBullet);
-			}
-			Mix_PlayChannel(-1, DefaultGunSound, 0);
-		
-		}
-		if (bullet_type == "Heavy") {
-			Entity newBullet;
-			newBullet.position.x = position.x;
-			newBullet.position.y = position.y;
-			DrawSpriteSheetSprite(program, 8, SPRITE_COUNT_X, SPRITE_COUNT_Y, TILE_SIZE);
-			if (facing == "up") {
-				newBullet.velocity.y = 1.0f;
-			}
-			else if (facing == "down") {
-				newBullet.velocity.y = -1.0f;
-			}
-			else if (facing == "left") {
-				newBullet.velocity.x = -1.0f;
-			}
-			else if (facing == "right") {
-				newBullet.velocity.x = 1.0f;
-			}
-			newBullet.timeAlive = 0.0f;
-			if (type == "player1") {
-				bullets1.push_back(newBullet);
-			}
-			else if (type == "player2") {
-				bullets2.push_back(newBullet);
-			}
-			Mix_PlayChannel(-1, HeavyGunSound, 0);
-		}
-		if (bullet_type == "Wave") {
-			Entity newBullet;
-			newBullet.position.x = position.x;
-			newBullet.position.y = position.y;
-			DrawSpriteSheetSprite(program, 37, SPRITE_COUNT_X, SPRITE_COUNT_Y, TILE_SIZE);
-			if (facing == "up") {
-				newBullet.velocity.y = 2.0f;
-			}
-			else if (facing == "down") {
-				newBullet.velocity.y = -2.0f;
-			}
-			else if (facing == "left") {
-				newBullet.velocity.x = -2.0f;
-			}
-			else if (facing == "right") {
-				newBullet.velocity.x = 2.0f;
-			}
-			newBullet.timeAlive = 0.0f;
-			if (type == "player1") {
-				bullets1.push_back(newBullet);
-			}
-			else if (type == "player2") {
-				bullets2.push_back(newBullet);
-			}
-			Mix_PlayChannel(-1, WaveGunSound, 0);
-		}
-		if (bullet_type == "Spark") {
-			Entity newBullet;
-			newBullet.position.x = position.x;
-			newBullet.position.y = position.y;
-			DrawSpriteSheetSprite(program, 248, SPRITE_COUNT_X, SPRITE_COUNT_Y, TILE_SIZE);
-			if (facing == "up") {
-				newBullet.velocity.y = 10.0f;
-			}
-			else if (facing == "down") {
-				newBullet.velocity.y = -10.0f;
-			}
-			else if (facing == "left") {
-				newBullet.velocity.x = -10.0f;
-			}
-			else if (facing == "right") {
-				newBullet.velocity.x = 10.0f;
-			}
-			newBullet.timeAlive = 0.0f;
-			if (type == "player1") {
-				bullets1.push_back(newBullet);
-			}
-			else if (type == "player2") {
-				bullets2.push_back(newBullet);
-			}
-			Mix_PlayChannel(-1, SparkGunSound, 0);
-		}
-
 	}
 	void remove() {
 		position.x = 2000.0f;
@@ -536,6 +428,223 @@ void RenderGameLevel3() {
 	}
 }
 
+void shootBullet1() {
+	if (state.player1.bullet_type == "default") {
+		Entity newBullet;
+		newBullet.position.x = state.player1.position.x;
+		newBullet.position.y = state.player1.position.y;
+		DrawSpriteSheetSprite(program, 26, SPRITE_COUNT_X, SPRITE_COUNT_Y, TILE_SIZE);
+		if (state.player1.facing == "up") {
+			newBullet.velocity.y = 1.5f;
+		}
+		else if (state.player1.facing == "down") {
+			newBullet.velocity.y = -1.5f;
+		}
+		else if (state.player1.facing == "left") {
+			newBullet.velocity.x = -1.5f;
+		}
+		else if (state.player1.facing == "right") {
+			newBullet.velocity.x = 1.5f;
+		}
+		newBullet.timeAlive = 0.0f;
+		if (state.player1.type == "player1") {
+			state.bullets1.push_back(newBullet);
+		}
+		else if (state.player1.type == "player2") {
+			state.bullets2.push_back(newBullet);
+		}
+		Mix_PlayChannel(-1, DefaultGunSound, 0);
+
+	}
+	if (state.player1.bullet_type == "Heavy") {
+		Entity newBullet;
+		newBullet.position.x = state.player1.position.x;
+		newBullet.position.y = state.player1.position.y;
+		DrawSpriteSheetSprite(program, 8, SPRITE_COUNT_X, SPRITE_COUNT_Y, TILE_SIZE);
+		if (state.player1.facing == "up") {
+			newBullet.velocity.y = 1.0f;
+		}
+		else if (state.player1.facing == "down") {
+			newBullet.velocity.y = -1.0f;
+		}
+		else if (state.player1.facing == "left") {
+			newBullet.velocity.x = -1.0f;
+		}
+		else if (state.player1.facing == "right") {
+			newBullet.velocity.x = 1.0f;
+		}
+		newBullet.timeAlive = 0.0f;
+		if (state.player1.type == "player1") {
+			state.bullets1.push_back(newBullet);
+		}
+		else if (state.player1.type == "player2") {
+			state.bullets2.push_back(newBullet);
+		}
+		Mix_PlayChannel(-1, HeavyGunSound, 0);
+	}
+	if (state.player1.bullet_type == "Wave") {
+		Entity newBullet;
+		newBullet.position.x = state.player1.position.x;
+		newBullet.position.y = state.player1.position.y;
+		DrawSpriteSheetSprite(program, 37, SPRITE_COUNT_X, SPRITE_COUNT_Y, TILE_SIZE);
+		if (state.player1.facing == "up") {
+			newBullet.velocity.y = 2.0f;
+		}
+		else if (state.player1.facing == "down") {
+			newBullet.velocity.y = -2.0f;
+		}
+		else if (state.player1.facing == "left") {
+			newBullet.velocity.x = -2.0f;
+		}
+		else if (state.player1.facing == "right") {
+			newBullet.velocity.x = 2.0f;
+		}
+		newBullet.timeAlive = 0.0f;
+		if (state.player1.type == "player1") {
+			state.bullets1.push_back(newBullet);
+		}
+		else if (state.player1.type == "player2") {
+			state.bullets2.push_back(newBullet);
+		}
+		Mix_PlayChannel(-1, WaveGunSound, 0);
+	}
+	if (state.player1.bullet_type == "Spark") {
+		Entity newBullet;
+		newBullet.position.x = state.player1.position.x;
+		newBullet.position.y = state.player1.position.y;
+		DrawSpriteSheetSprite(program, 248, SPRITE_COUNT_X, SPRITE_COUNT_Y, TILE_SIZE);
+		if (state.player1.facing == "up") {
+			newBullet.velocity.y = 10.0f;
+		}
+		else if (state.player1.facing == "down") {
+			newBullet.velocity.y = -10.0f;
+		}
+		else if (state.player1.facing == "left") {
+			newBullet.velocity.x = -10.0f;
+		}
+		else if (state.player1.facing == "right") {
+			newBullet.velocity.x = 10.0f;
+		}
+		newBullet.timeAlive = 0.0f;
+		if (state.player1.type == "player1") {
+			state.bullets1.push_back(newBullet);
+		}
+		else if (state.player1.type == "player2") {
+			state.bullets2.push_back(newBullet);
+		}
+		Mix_PlayChannel(-1, SparkGunSound, 0);
+	}
+
+}
+void shootBullet2() {
+	if (state.player2.bullet_type == "default") {
+		Entity newBullet;
+		newBullet.position.x = state.player2.position.x;
+		newBullet.position.y = state.player2.position.y;
+		DrawSpriteSheetSprite(program, 26, SPRITE_COUNT_X, SPRITE_COUNT_Y, TILE_SIZE);
+		if (state.player2.facing == "up") {
+			newBullet.velocity.y = 1.5f;
+		}
+		else if (state.player2.facing == "down") {
+			newBullet.velocity.y = -1.5f;
+		}
+		else if (state.player2.facing == "left") {
+			newBullet.velocity.x = -1.5f;
+		}
+		else if (state.player2.facing == "right") {
+			newBullet.velocity.x = 1.5f;
+		}
+		newBullet.timeAlive = 0.0f;
+		if (state.player2.type == "player1") {
+			state.bullets1.push_back(newBullet);
+		}
+		else if (state.player2.type == "player2") {
+			state.bullets2.push_back(newBullet);
+		}
+		Mix_PlayChannel(-1, DefaultGunSound, 0);
+
+	}
+	if (state.player2.bullet_type == "Heavy") {
+		Entity newBullet;
+		newBullet.position.x = state.player2.position.x;
+		newBullet.position.y = state.player2.position.y;
+		DrawSpriteSheetSprite(program, 8, SPRITE_COUNT_X, SPRITE_COUNT_Y, TILE_SIZE);
+		if (state.player2.facing == "up") {
+			newBullet.velocity.y = 1.0f;
+		}
+		else if (state.player2.facing == "down") {
+			newBullet.velocity.y = -1.0f;
+		}
+		else if (state.player2.facing == "left") {
+			newBullet.velocity.x = -1.0f;
+		}
+		else if (state.player2.facing == "right") {
+			newBullet.velocity.x = 1.0f;
+		}
+		newBullet.timeAlive = 0.0f;
+		if (state.player2.type == "player1") {
+			state.bullets1.push_back(newBullet);
+		}
+		else if (state.player2.type == "player2") {
+			state.bullets2.push_back(newBullet);
+		}
+		Mix_PlayChannel(-1, HeavyGunSound, 0);
+	}
+	if (state.player2.bullet_type == "Wave") {
+		Entity newBullet;
+		newBullet.position.x = state.player2.position.x;
+		newBullet.position.y = state.player2.position.y;
+		DrawSpriteSheetSprite(program, 37, SPRITE_COUNT_X, SPRITE_COUNT_Y, TILE_SIZE);
+		if (state.player2.facing == "up") {
+			newBullet.velocity.y = 2.0f;
+		}
+		else if (state.player2.facing == "down") {
+			newBullet.velocity.y = -2.0f;
+		}
+		else if (state.player2.facing == "left") {
+			newBullet.velocity.x = -2.0f;
+		}
+		else if (state.player2.facing == "right") {
+			newBullet.velocity.x = 2.0f;
+		}
+		newBullet.timeAlive = 0.0f;
+		if (state.player2.type == "player1") {
+			state.bullets1.push_back(newBullet);
+		}
+		else if (state.player2.type == "player2") {
+			state.bullets2.push_back(newBullet);
+		}
+		Mix_PlayChannel(-1, WaveGunSound, 0);
+	}
+	if (state.player2.bullet_type == "Spark") {
+		Entity newBullet;
+		newBullet.position.x = state.player2.position.x;
+		newBullet.position.y = state.player2.position.y;
+		DrawSpriteSheetSprite(program, 248, SPRITE_COUNT_X, SPRITE_COUNT_Y, TILE_SIZE);
+		if (state.player2.facing == "up") {
+			newBullet.velocity.y = 10.0f;
+		}
+		else if (state.player2.facing == "down") {
+			newBullet.velocity.y = -10.0f;
+		}
+		else if (state.player2.facing == "left") {
+			newBullet.velocity.x = -10.0f;
+		}
+		else if (state.player2.facing == "right") {
+			newBullet.velocity.x = 10.0f;
+		}
+		newBullet.timeAlive = 0.0f;
+		if (state.player2.type == "player1") {
+			state.bullets1.push_back(newBullet);
+		}
+		else if (state.player2.type == "player2") {
+			state.bullets2.push_back(newBullet);
+		}
+		Mix_PlayChannel(-1, SparkGunSound, 0);
+	}
+
+}
+
 void UpdateGameLevel(float elapsed) {
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
 	if (keys[SDL_SCANCODE_LEFT]) {
@@ -571,7 +680,6 @@ void UpdateGameLevel(float elapsed) {
 		state.player2.position.y -= state.player2.velocity.y * elapsed;
 		state.player2.facing = "down";
 	}
-	/*
 	float playerBottom = (state.player1.position.y - state.player1.size.y / 2.0f);
 	float playerTop = (state.player1.position.y + state.player1.size.y / 2.0f);
 	pair<int, int> tiledcoord = worldToTileCoordinates(state.player1.position.x, playerBottom);
@@ -581,24 +689,82 @@ void UpdateGameLevel(float elapsed) {
 		float penetration = fabs((-TILE_SIZE * gridY) - (state.player1.position.y - state.player1.size.y / 2.0f));
 		state.player1.position.y += penetration;
 	}
-	float playerBottom2 = (state.player2.position.y - state.player2.size.y / 2.0f);
-	float playerTop2 = (state.player1.position.y + state.player1.size.y / 2.0f);
-	pair<int, int> tiledcoord2 = worldToTileCoordinates(state.player2.position.x, playerBottom2);
+	pair<int, int> tiledcoord2 = worldToTileCoordinates(state.player1.position.y, playerTop);
 	int gridY2 = tiledcoord2.second;
 	int gridX2 = tiledcoord2.first;
 	if (gridY2 >= 0 && gridX2 >= 0 && map.mapData[gridY2][gridX2] != 0) {
-		float penetration = fabs((-TILE_SIZE * gridY2) - (state.player2.position.y - state.player2.size.y / 2.0f));
+		float penetration = fabs((state.player1.position.y + state.player1.size.y / 2.0f) - (-TILE_SIZE * gridY2)-TILE_SIZE);
+		state.player1.position.y -= penetration;
+	}
+
+	float playerBottom2 = (state.player2.position.y - state.player2.size.y / 2.0f);
+	float playerTop2 = (state.player1.position.y + state.player1.size.y / 2.0f);
+	pair<int, int> tiledcoord3 = worldToTileCoordinates(state.player2.position.x, playerBottom2);
+	int gridY3 = tiledcoord3.second;
+	int gridX3 = tiledcoord3.first;
+	if (gridY3 >= 0 && gridX3 >= 0 && map.mapData[gridY3][gridX3] != 0) {
+		float penetration = fabs((-TILE_SIZE * gridY3) - (state.player2.position.y - state.player2.size.y / 2.0f));
 		state.player2.position.y += penetration;
 	}
-	*/
+	pair<int, int> tiledcoord4 = worldToTileCoordinates(state.player1.position.y, playerTop2);
+	int gridY4 = tiledcoord4.second;
+	int gridX4 = tiledcoord4.first;
+	if (gridY4 >= 0 && gridX4 >= 0 && map.mapData[gridY4][gridX4] != 0) {
+		float penetration = fabs((state.player2.position.y + state.player2.size.y / 2.0f) - (-TILE_SIZE * gridY4) - TILE_SIZE);
+		state.player2.position.y -= penetration;
+	}
+
+	float playerLeft = (state.player1.position.x - state.player1.size.x / 2.0f);
+	float playerRight = (state.player1.position.x + state.player1.size.x / 2.0f);
+	pair<int, int> tiledcoord5 = worldToTileCoordinates(state.player1.position.x, playerLeft);
+	int gridY5 = tiledcoord5.second;
+	int gridX5 = tiledcoord5.first;
+	if (gridY5 >= 0 && gridX5 >= 0 && map.mapData[gridY5][gridX5] != 0) {
+		float penetration = fabs((-TILE_SIZE * gridX5) + TILE_SIZE - (state.player1.position.x - state.player1.size.x / 2.0f));
+		state.player1.position.x += penetration;
+	}
+	pair<int, int> tiledcoord6 = worldToTileCoordinates(state.player1.position.x, playerRight);
+	int gridY6 = tiledcoord6.second;
+	int gridX6 = tiledcoord6.first;
+	if (gridY6 >= 0 && gridX6 >= 0 && map.mapData[gridY6][gridX6] != 0) {
+		float penetration = fabs((state.player1.position.x + state.player1.size.x / 2.0f) - (-TILE_SIZE * gridX6));
+		state.player1.position.x -= penetration;
+	}
+
+	float playerLeft2 = (state.player2.position.x - state.player2.size.x / 2.0f);
+	float playerRight2 = (state.player2.position.x + state.player2.size.x / 2.0f);
+	pair<int, int> tiledcoord7 = worldToTileCoordinates(state.player2.position.x, playerLeft2);
+	int gridY7 = tiledcoord7.second;
+	int gridX7 = tiledcoord7.first;
+	if (gridY7 >= 0 && gridX7 >= 0 && map.mapData[gridY7][gridX7] != 0) {
+		float penetration = fabs((-TILE_SIZE * gridX7) + TILE_SIZE - (state.player2.position.x - state.player2.size.x / 2.0f));
+		state.player2.position.x += penetration;
+	}
+	pair<int, int> tiledcoord8 = worldToTileCoordinates(state.player2.position.x, playerRight2);
+	int gridY8 = tiledcoord8.second;
+	int gridX8 = tiledcoord8.first;
+	if (gridY8 >= 0 && gridX8 >= 0 && map.mapData[gridY8][gridX8] != 0) {
+		float penetration = fabs((state.player2.position.x + state.player2.size.x / 2.0f) - (-TILE_SIZE * gridX8));
+		state.player2.position.x -= penetration;
+	}
+
+	state.player1.sincelastshot += elapsed;
+	state.player2.sincelastshot += elapsed;
+
 	if (keys[SDL_SCANCODE_RSHIFT]) {
 		if (mode == STATE_GAME_LEVEL_1 || mode == STATE_GAME_LEVEL_2 || mode == STATE_GAME_LEVEL_3) {
-			state.player1.shootBullet();
+			if (state.player1.sincelastshot >= 0.5f) {
+				shootBullet1();
+				state.player1.sincelastshot = 0.0f;
+			}
 		}
 	}
 	if (keys[SDL_SCANCODE_LSHIFT]) {
 		if (mode == STATE_GAME_LEVEL_1 || mode == STATE_GAME_LEVEL_2 || mode == STATE_GAME_LEVEL_3) {
-			state.player2.shootBullet();
+			if (state.player2.sincelastshot >= 0.5f) {
+				shootBullet2();
+				state.player2.sincelastshot = 0.0f;
+			}
 		}
 	}
 	if (keys[SDL_SCANCODE_RIGHTBRACKET]) {
@@ -649,9 +815,9 @@ void UpdateGameLevel(float elapsed) {
 		}
 	}
 
-	for (size_t i = 0; i < state.bullets1.size(); i++) {
-		state.bullets1[i].position.x += state.bullets1[i].velocity.x*elapsed;
-		state.bullets1[i].position.y += state.bullets1[i].velocity.y*elapsed;
+	for (size_t i = 0; i < state.bullets2.size(); i++) {
+		state.bullets2[i].position.x += state.bullets2[i].velocity.x*elapsed;
+		state.bullets2[i].position.y += state.bullets2[i].velocity.y*elapsed;
 		for (size_t i = 0; i < state.bullets2.size(); i++) {
 			float p1 = (abs(state.bullets2[i].position.x - state.player1.position.x) - ((state.bullets2[i].size.x) + (state.player1.size.x)) / 2.0f);
 			float p2 = (abs(state.bullets2[i].position.y - state.player1.position.y) - ((state.bullets2[i].size.y) + (state.player1.size.y)) / 2.0f);
@@ -673,7 +839,19 @@ void UpdateGameLevel(float elapsed) {
 		}
 	}
 
+	for (size_t i = 0; i < state.bullets1.size(); i++) {
+		state.bullets1[i].timeAlive += elapsed;
+		if (state.bullets1[i].timeAlive >= 3.0f) {
+			state.bullets1.erase(state.bullets1.begin() + i);
+		}
+	}
 
+	for (size_t i = 0; i < state.bullets2.size(); i++) {
+		state.bullets2[i].timeAlive += elapsed;
+		if (state.bullets2[i].timeAlive >= 3.0f) {
+			state.bullets2.erase(state.bullets2.begin() + i);
+		}
+	}
 
 	if (state.player1.health <= 0) {
 		mode = STATE_GAME_OVER;
@@ -784,9 +962,9 @@ int main(int argc, char *argv[])
 
 	state.player1 = player1;
 	state.player2 = player2;
-	state.items = items;
 	state.bullets1 = bullets1;
 	state.bullets2 = bullets2;
+	state.items = items;
 
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
 
@@ -802,8 +980,12 @@ int main(int argc, char *argv[])
 	Mix_Chunk *SparkGunSound;
 	SparkGunSound = Mix_LoadWAV("sparkgunsound.wav");
 //	Mix_PlayChannel(-1, SparkGunSound, 5);
-	Mix_Music *music;
-	music = Mix_LoadMUS("8-Bit-Mayhem.mp3");
+
+	Mix_Chunk *Music;
+	Music = Mix_LoadWAV("8-Bit-Mayhem.wav");
+	Mix_PlayChannel(-1, Music, -1);
+	//Mix_Music *music;
+	//music = Mix_LoadMUS("8-Bit-Mayhem.mp3");
 	//Mix_PlayMusic(music, -1);
 
 	glUseProgram(program.programID);
