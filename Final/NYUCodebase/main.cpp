@@ -1019,15 +1019,15 @@ int main(int argc, char *argv[])
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 75);
 							state.player1 = newEntity;
 							state.player1.type = "player1";
-							state.player1.velocity.x = 0.8f;
-							state.player1.velocity.y = 0.8f;
+							state.player1.velocity.x = 0.5f;
+							state.player1.velocity.y = 0.5f;
 						}
 						if (a.type == "Player2") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 59);
 							state.player2 = newEntity;
 							state.player2.type = "player2";
-							state.player2.velocity.x = 0.8f;
-							state.player2.velocity.y = 0.8f;
+							state.player2.velocity.x = 0.5f;
+							state.player2.velocity.y = 0.5f;
 						}
 						else if (a.type == "Heavy") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 8);
@@ -1054,15 +1054,15 @@ int main(int argc, char *argv[])
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 75);
 							state.player1 = newEntity;
 							state.player1.type = "player1";
-							state.player1.velocity.x = 0.8f;
-							state.player1.velocity.y = 0.8f;
+							state.player1.velocity.x = 0.5f;
+							state.player1.velocity.y = 0.5f;
 						}
 						if (a.type == "Player2") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 59);
 							state.player2 = newEntity;
 							state.player2.type = "player2";
-							state.player2.velocity.x = 0.8f;
-							state.player2.velocity.y = 0.8f;
+							state.player2.velocity.x = 0.5f;
+							state.player2.velocity.y = 0.5f;
 						}
 						else if (a.type == "Heavy") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 8);
@@ -1089,8 +1089,8 @@ int main(int argc, char *argv[])
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 75);
 							state.player1 = newEntity;
 							state.player1.type = "player1";
-							state.player1.velocity.x = 0.8f;
-							state.player1.velocity.y = 0.8f;
+							state.player1.velocity.x = 0.5f;
+							state.player1.velocity.y = 0.5f;
 						}
 						if (a.type == "Player2") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 59);
