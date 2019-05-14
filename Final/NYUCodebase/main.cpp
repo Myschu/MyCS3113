@@ -105,6 +105,29 @@ void SheetSprite::Draw(ShaderProgram &program) {
 
 }
 
+class Particle {
+public:
+	glm::vec3 position;
+	glm::vec3 velocity;
+	float lifetime;
+};
+
+class ParticleEmitter {
+public:
+	ParticleEmitter() {}
+	ParticleEmitter(unsigned int particleCount) {}
+	~ParticleEmitter() {}
+
+
+	void Update(float elapsed);
+	void Render();
+	glm::vec3 position;
+	glm::vec3 gravity;
+	float maxLifetime;
+
+	std::vector<Particle> particles;
+};
+
 
 void Draw(ShaderProgram& program) {
 	vector<float> vertexData;
@@ -407,27 +430,32 @@ GameState state;
 void RenderMainMenu() {
 
 	glm::mat4 textMatrix = glm::mat4(1.0f);
-	textMatrix = glm::translate(textMatrix, glm::vec3(-1.1f, 0.2f, 0.0f));
+	textMatrix = glm::translate(textMatrix, glm::vec3(0.5f, -0.5f, 0.0f));
 	program.SetModelMatrix(textMatrix);
 	DrawText(program, fontTexture, "Oh boy it's a game.", 0.25f, -0.12f);
 
 	textMatrix = glm::mat4(1.0f);
-	textMatrix = glm::translate(textMatrix, glm::vec3(-0.95f, -0.2f, 0.0f));
+	textMatrix = glm::translate(textMatrix, glm::vec3(0.65f, -0.9f, 0.0f));
 	program.SetModelMatrix(textMatrix);
 	DrawText(program, fontTexture, "Press Space to start!", 0.2f, -0.1f);
 
 	textMatrix = glm::mat4(1.0f);
-	textMatrix = glm::translate(textMatrix, glm::vec3(-0.85f, -0.4f, 0.0f));
+	textMatrix = glm::translate(textMatrix, glm::vec3(0.7f, -1.1f, 0.0f));
 	program.SetModelMatrix(textMatrix);
 	DrawText(program, fontTexture, "Arrow keys (P1) and WASD (P2) to move.", 0.1f, -0.05f);
 
 	textMatrix = glm::mat4(1.0f);
-	textMatrix = glm::translate(textMatrix, glm::vec3(-1.05f, -0.6f, 0.0f));
+	textMatrix = glm::translate(textMatrix, glm::vec3(0.7f, -1.3f, 0.0f));
+	program.SetModelMatrix(textMatrix);
+	DrawText(program, fontTexture, "TAB (P1) and ] (P2) to pick up weapon.", 0.1f, -0.05f);
+
+	textMatrix = glm::mat4(1.0f);
+	textMatrix = glm::translate(textMatrix, glm::vec3(0.5f, -1.5f, 0.0f));
 	program.SetModelMatrix(textMatrix);
 	DrawText(program, fontTexture, "Right shift (P1) and Left shift (P2) to shoot.", 0.1f, -0.05f);
 
 	textMatrix = glm::mat4(1.0f);
-	textMatrix = glm::translate(textMatrix, glm::vec3(-0.25f, -0.8f, 0.0f));
+	textMatrix = glm::translate(textMatrix, glm::vec3(1.35f, -1.7f, 0.0f));
 	program.SetModelMatrix(textMatrix);
 	DrawText(program, fontTexture, "Esc to quit.", 0.1f, -0.05f);
 
@@ -435,30 +463,31 @@ void RenderMainMenu() {
 
 void RenderGameOver() {
 	glm::mat4 textMatrix = glm::mat4(1.0f);
-	textMatrix = glm::translate(textMatrix, glm::vec3(-1.1f, 0.2f, 0.0f));
+	textMatrix = glm::translate(textMatrix, glm::vec3(0.3f, -0.6f, 0.0f));
 	program.SetModelMatrix(textMatrix);
 	DrawText(program, fontTexture, "Oh boy it's game over.", 0.25f, -0.12f);
 
 	textMatrix = glm::mat4(1.0f);
-	textMatrix = glm::translate(textMatrix, glm::vec3(-0.85f, -0.6f, 0.0f));
+	textMatrix = glm::translate(textMatrix, glm::vec3(0.6f, -1.0f, 0.0f));
 	program.SetModelMatrix(textMatrix);
 	DrawText(program, fontTexture, "Press Esc to quit.", 0.25f, -0.12f);
 }
 
 void RenderGameSelect() {
 	glm::mat4 textMatrix = glm::mat4(1.0f);
-	textMatrix = glm::translate(textMatrix, glm::vec3(-0.8f, 0.2f, 0.0f));
+	textMatrix = glm::translate(textMatrix, glm::vec3(0.9f, -0.4f, 0.0f));
 	program.SetModelMatrix(textMatrix);
 	DrawText(program, fontTexture, "Choose a map.", 0.25f, -0.12f);
 
 	textMatrix = glm::mat4(1.0f);
-	textMatrix = glm::translate(textMatrix, glm::vec3(-0.65f, -0.6f, 0.0f));
+	textMatrix = glm::translate(textMatrix, glm::vec3(0.85f, -2.0f, 0.0f));
 	program.SetModelMatrix(textMatrix);
 	DrawText(program, fontTexture, "Press 1 2 or 3.", 0.25f, -0.12f);
 }
 
 Entity player1;
 Entity player2;
+
 
 void UpdateMainMenu(float elapsed) {}
 
@@ -526,6 +555,7 @@ void UpdateGameLevel(float elapsed) {
 		state.player1.facing = "down";
 	}
 	if (keys[SDL_SCANCODE_A]) {
+
 		state.player2.position.x -= state.player2.velocity.x*elapsed;
 		state.player2.facing = "left";
 	}
@@ -563,12 +593,12 @@ void UpdateGameLevel(float elapsed) {
 	*/
 	if (keys[SDL_SCANCODE_RSHIFT]) {
 		if (mode == STATE_GAME_LEVEL_1 || mode == STATE_GAME_LEVEL_2 || mode == STATE_GAME_LEVEL_3) {
-			player1.shootBullet();
+			state.player1.shootBullet();
 		}
 	}
 	if (keys[SDL_SCANCODE_LSHIFT]) {
 		if (mode == STATE_GAME_LEVEL_1 || mode == STATE_GAME_LEVEL_2 || mode == STATE_GAME_LEVEL_3) {
-			player2.shootBullet();
+			state.player2.shootBullet();
 		}
 	}
 	if (keys[SDL_SCANCODE_RIGHTBRACKET]) {
@@ -577,7 +607,8 @@ void UpdateGameLevel(float elapsed) {
 				float p1 = (abs(state.items[i].position.x - state.player1.position.x) - ((state.items[i].size.x) + (state.player1.size.x)) / 2.0f);
 				float p2 = (abs(state.items[i].position.y - state.player1.position.y) - ((state.items[i].size.y) + (state.player1.size.y)) / 2.0f);
 				if (p1 < 0 && p2 < 0) {
-					state.player1.pickup(items[i].type);
+					state.player1.pickup(state.items[i].type);
+
 				}
 			}
 		}
@@ -588,7 +619,7 @@ void UpdateGameLevel(float elapsed) {
 				float p1 = (abs(state.items[i].position.x - state.player2.position.x) - ((state.items[i].size.x) + (state.player2.size.x)) / 2.0f);
 				float p2 = (abs(state.items[i].position.y - state.player2.position.y) - ((state.items[i].size.y) + (state.player2.size.y)) / 2.0f);
 				if (p1 < 0 && p2 < 0) {
-					state.player2.pickup(items[i].type);
+						state.player2.pickup(state.items[i].type);
 				}
 			}
 		}
@@ -732,14 +763,15 @@ int main(int argc, char *argv[])
 	glewInit();
 #endif
 
-	glViewport(0, 0, 640, 360);
+	glViewport(0, 0, 640, 640);
 
 	program.Load(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
 
 	glm::mat4 projectionMatrix = glm::mat4(1.0f);
 	glm::mat4 viewMatrix = glm::mat4(1.0f);
 	
-	projectionMatrix = glm::ortho(-1.777f, 1.777f, -1.0f, 1.0f, -1.0f, 1.0f);
+	projectionMatrix = glm::ortho(-1.777f, 1.777f, -1.777f, 1.777f, -1.0f, 1.0f);
+	viewMatrix = glm::translate(viewMatrix, glm::vec3(-1.6f, 1.55f, 0.0f));
 
 	program.SetViewMatrix(viewMatrix);
 	program.SetProjectionMatrix(projectionMatrix);
@@ -797,7 +829,7 @@ int main(int argc, char *argv[])
 						mode = STATE_GAME_OVER;
 					}
 				}
-				if (event.key.keysym.scancode == SDL_SCANCODE_1) {
+				if (mode == STATE_GAME_SELECT && event.key.keysym.scancode == SDL_SCANCODE_1) {
 					mode = STATE_GAME_LEVEL_1;
 					map.Load("Level1.txt");
 					for (FlareMapEntity a : map.entities) {
@@ -832,7 +864,7 @@ int main(int argc, char *argv[])
 						}
 					}
 				}
-				if (event.key.keysym.scancode == SDL_SCANCODE_2) {
+				if (mode == STATE_GAME_SELECT && event.key.keysym.scancode == SDL_SCANCODE_2) {
 					mode = STATE_GAME_LEVEL_2;
 					map.Load("Level2.txt");
 					for (FlareMapEntity a : map.entities) {
@@ -867,7 +899,7 @@ int main(int argc, char *argv[])
 						}
 					}
 				}
-				if (event.key.keysym.scancode == SDL_SCANCODE_3) {
+				if (mode == STATE_GAME_SELECT && event.key.keysym.scancode == SDL_SCANCODE_3) {
 					mode = STATE_GAME_LEVEL_3;
 					map.Load("Level3.txt");
 					for (FlareMapEntity a : map.entities) {
