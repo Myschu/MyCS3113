@@ -323,16 +323,16 @@ struct GameState {
 	vector<Entity> items;
 };
 
-enum GameMode { STATE_MAIN_MENU, STATE_GAME_SELECT, STATE_GAME_LEVEL_1, STATE_GAME_LEVEL_2, STATE_GAME_LEVEL_3, STATE_GAME_OVER };
+enum GameMode { STATE_MAIN_MENU, STATE_GAME_SELECT, STATE_GAME_LEVEL_1, STATE_GAME_LEVEL_2, STATE_GAME_LEVEL_3, STATE_GAME_OVER1, STATE_GAME_OVER2 };
 GameMode mode = STATE_MAIN_MENU;
 GameState state;
 
 void RenderMainMenu() {
 
 	glm::mat4 textMatrix = glm::mat4(1.0f);
-	textMatrix = glm::translate(textMatrix, glm::vec3(0.5f, -0.5f, 0.0f));
+	textMatrix = glm::translate(textMatrix, glm::vec3(0.2f, -0.5f, 0.0f));
 	program.SetModelMatrix(textMatrix);
-	DrawText(program, fontTexture, "Oh boy it's a game.", 0.25f, -0.12f);
+	DrawText(program, fontTexture, "The Result of Sleepless Nights", 0.25f, -0.15f);
 
 	textMatrix = glm::mat4(1.0f);
 	textMatrix = glm::translate(textMatrix, glm::vec3(0.65f, -0.9f, 0.0f));
@@ -347,7 +347,7 @@ void RenderMainMenu() {
 	textMatrix = glm::mat4(1.0f);
 	textMatrix = glm::translate(textMatrix, glm::vec3(0.7f, -1.3f, 0.0f));
 	program.SetModelMatrix(textMatrix);
-	DrawText(program, fontTexture, "TAB (P1) and ] (P2) to pick up weapon.", 0.1f, -0.05f);
+	DrawText(program, fontTexture, "] (P1) and TAB (P2) to pick up weapons.", 0.1f, -0.05f);
 
 	textMatrix = glm::mat4(1.0f);
 	textMatrix = glm::translate(textMatrix, glm::vec3(0.5f, -1.5f, 0.0f));
@@ -361,11 +361,23 @@ void RenderMainMenu() {
 
 }
 
-void RenderGameOver() {
+void RenderGameOver1() {
 	glm::mat4 textMatrix = glm::mat4(1.0f);
-	textMatrix = glm::translate(textMatrix, glm::vec3(0.3f, -0.6f, 0.0f));
+	textMatrix = glm::translate(textMatrix, glm::vec3(0.8f, -0.6f, 0.0f));
 	program.SetModelMatrix(textMatrix);
-	DrawText(program, fontTexture, "Oh boy it's game over.", 0.25f, -0.12f);
+	DrawText(program, fontTexture, "Player 1 Wins!", 0.25f, -0.12f);
+
+	textMatrix = glm::mat4(1.0f);
+	textMatrix = glm::translate(textMatrix, glm::vec3(0.6f, -1.0f, 0.0f));
+	program.SetModelMatrix(textMatrix);
+	DrawText(program, fontTexture, "Press Esc to quit.", 0.25f, -0.12f);
+}
+
+void RenderGameOver2() {
+	glm::mat4 textMatrix = glm::mat4(1.0f);
+	textMatrix = glm::translate(textMatrix, glm::vec3(0.8f, -0.6f, 0.0f));
+	program.SetModelMatrix(textMatrix);
+	DrawText(program, fontTexture, "Player 2 Wins!", 0.25f, -0.12f);
 
 	textMatrix = glm::mat4(1.0f);
 	textMatrix = glm::translate(textMatrix, glm::vec3(0.6f, -1.0f, 0.0f));
@@ -967,10 +979,10 @@ void UpdateGameLevel(float elapsed) {
 	}
 
 	if (state.player1.health <= 0) {
-		mode = STATE_GAME_OVER;
+		mode = STATE_GAME_OVER2;
 	}
 	if (state.player2.health <= 0) {
-		mode = STATE_GAME_OVER;
+		mode = STATE_GAME_OVER1;
 	}
 
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
@@ -1018,9 +1030,13 @@ void Render() {
 	case STATE_GAME_LEVEL_3:
 		RenderGameLevel3();
 		break;
-	case STATE_GAME_OVER:
-		RenderGameOver();
+	case STATE_GAME_OVER1:
+		RenderGameOver1();
 		break;
+	case STATE_GAME_OVER2:
+		RenderGameOver2();
+		break;
+
 	}
 }
 
@@ -1119,9 +1135,6 @@ int main(int argc, char *argv[])
 				if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
 					if (mode == STATE_MAIN_MENU) {
 						mode = STATE_GAME_SELECT;
-					}
-					if (mode == STATE_GAME_LEVEL_1 || mode == STATE_GAME_LEVEL_2 || mode == STATE_GAME_LEVEL_3) {
-						mode = STATE_GAME_OVER;
 					}
 				}
 				if (mode == STATE_GAME_SELECT && event.key.keysym.scancode == SDL_SCANCODE_1) {
