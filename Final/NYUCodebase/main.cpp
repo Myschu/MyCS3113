@@ -215,11 +215,19 @@ public:
 
 	void Draw(ShaderProgram& program) {
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
-		modelMatrix = glm::translate(modelMatrix, glm::vec3(position.x+TILE_SIZE/2, position.y+TILE_SIZE/2, 0.0f));
+		modelMatrix = glm::translate(modelMatrix, glm::vec3(position.x, position.y, 0.0f));
 
 		program.SetModelMatrix(modelMatrix);
 		DrawSpriteSheetSprite(program, index, SPRITE_COUNT_X, SPRITE_COUNT_Y, TILE_SIZE);
 	}
+	void Draw1(ShaderProgram& program) {
+		glm::mat4 modelMatrix = glm::mat4(1.0f);
+		modelMatrix = glm::translate(modelMatrix, glm::vec3(position.x+TILE_SIZE/2, position.y + TILE_SIZE / 2, 0.0f));
+
+		program.SetModelMatrix(modelMatrix);
+		DrawSpriteSheetSprite(program, index, SPRITE_COUNT_X, SPRITE_COUNT_Y, TILE_SIZE);
+	}
+
 	void remove() {
 		position.x = 2000.0f;
 		position.y = 3000.0f;
@@ -228,7 +236,7 @@ public:
 		bullet_type = type;
 	}
 
-	void ishit(int value) {
+	void is_hit(int value) {
 		health -= value;
 	}
 };
@@ -394,7 +402,7 @@ void RenderGameLevel1() {
 		state.bullets2[i].Draw(program);
 	}
 	for (size_t i = 0; i < state.items.size(); i++) {
-		state.items[i].Draw(program);
+		state.items[i].Draw1(program);
 	}
 }
 
@@ -409,7 +417,7 @@ void RenderGameLevel2() {
 		state.bullets2[i].Draw(program);
 	}
 	for (size_t i = 0; i < state.items.size(); i++) {
-		state.items[i].Draw(program);
+		state.items[i].Draw1(program);
 	}
 }
 
@@ -424,7 +432,7 @@ void RenderGameLevel3() {
 		state.bullets2[i].Draw(program);
 	}
 	for (size_t i = 0; i < state.items.size(); i++) {
-		state.items[i].Draw(program);
+		state.items[i].Draw1(program);
 	}
 }
 
@@ -645,41 +653,48 @@ void shootBullet2() {
 
 }
 
+
 void UpdateGameLevel(float elapsed) {
+	state.player1.velocity.x = 0.0f;
+	state.player1.velocity.y = 0.0f;
+	state.player2.velocity.x = 0.0f;
+	state.player2.velocity.y = 0.0f;
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
 	if (keys[SDL_SCANCODE_LEFT]) {
-		state.player1.position.x -= state.player1.velocity.x*elapsed;
+		state.player1.velocity.x = -0.5f;
 		state.player1.facing = "left";
 	}
 	else if (keys[SDL_SCANCODE_RIGHT]) {
-		state.player1.position.x += state.player1.velocity.x * elapsed;
+		state.player1.velocity.x = 0.5f;
 		state.player1.facing = "right";
 	}
 	if (keys[SDL_SCANCODE_UP]) {
-		state.player1.position.y += state.player1.velocity.y*elapsed;
+		state.player1.velocity.y = 0.5f;
 		state.player1.facing = "up";
 	}
 	else if (keys[SDL_SCANCODE_DOWN]) {
-		state.player1.position.y -= state.player1.velocity.y * elapsed;
+		state.player1.velocity.y = -0.5f;
 		state.player1.facing = "down";
 	}
 	if (keys[SDL_SCANCODE_A]) {
-
-		state.player2.position.x -= state.player2.velocity.x*elapsed;
+		state.player2.velocity.x = -0.5f;
 		state.player2.facing = "left";
 	}
 	else if (keys[SDL_SCANCODE_D]) {
-		state.player2.position.x += state.player2.velocity.x * elapsed;
+		state.player2.velocity.x = 0.5f;
 		state.player2.facing = "right";
 	}
 	if (keys[SDL_SCANCODE_W]) {
-		state.player2.position.y += state.player2.velocity.y*elapsed;
+		state.player2.velocity.y = 0.5f;
 		state.player2.facing = "up";
 	}
 	else if (keys[SDL_SCANCODE_S]) {
-		state.player2.position.y -= state.player2.velocity.y * elapsed;
+		state.player2.velocity.y = -0.5f;
 		state.player2.facing = "down";
 	}
+
+
+	state.player1.position.y += state.player1.velocity.y * elapsed;
 	float playerBottom = (state.player1.position.y - state.player1.size.y / 2.0f);
 	float playerTop = (state.player1.position.y + state.player1.size.y / 2.0f);
 	pair<int, int> tiledcoord = worldToTileCoordinates(state.player1.position.x, playerBottom);
@@ -687,65 +702,88 @@ void UpdateGameLevel(float elapsed) {
 	int gridX = tiledcoord.first;
 	if (gridY >= 0 && gridX >= 0 && map.mapData[gridY][gridX] != 0) {
 		float penetration = fabs((-TILE_SIZE * gridY) - (state.player1.position.y - state.player1.size.y / 2.0f));
-		state.player1.position.y += penetration;
+		state.player1.position.y += 0.01f;
 	}
-	pair<int, int> tiledcoord2 = worldToTileCoordinates(state.player1.position.y, playerTop);
+	pair<int, int> tiledcoord2 = worldToTileCoordinates(state.player1.position.x, playerTop);
 	int gridY2 = tiledcoord2.second;
 	int gridX2 = tiledcoord2.first;
 	if (gridY2 >= 0 && gridX2 >= 0 && map.mapData[gridY2][gridX2] != 0) {
-		float penetration = fabs((state.player1.position.y + state.player1.size.y / 2.0f) - (-TILE_SIZE * gridY2)-TILE_SIZE);
-		state.player1.position.y -= penetration;
+		float penetration = fabs((state.player1.position.y + state.player1.size.y / 2.0f) - (-TILE_SIZE * gridY2) - TILE_SIZE);
+		state.player1.position.y -= 0.01f;  
 	}
 
+	/*
+	float bulletBottom = (state.bullets1[i].position.y - state.bullets[i].size.y / 2.0f);
+	float bulletTop = (state.bullets1[i].position.y + state.bullets1[i].size.y / 2.0f);
+	float bulletLeft = (state.bullets1[i].position.x - state.bullets1[i].size.x / 2.0f);
+	float bulletRight = (state.bullets1[i].position.x + state.bullets1[i].size.x / 2.0f);
+	pair<int, int> tiledcoord9 = worldToTileCoordinates(state.bullets1[i].position.x, bulletBottom);
+	int gridY9 = tiledcoord9.second;
+	int gridX9 = tiledcoord9.first;
+	if (gridY9 >= 0 && gridX9 >= 0 && map.mapData[gridY9][gridX9] != 0) {
+		state.bullets1.erase(state.bullets1.begin() + i);
+	}
+	pair<int, int> tiledcoord10 = worldToTileCoordinates(state.bullets1[i].position.x, bulletTop);
+	int gridY10 = tiledcoord10.second;
+	int gridX10 = tiledcoord10.first;
+	if (gridY10 >= 0 && gridX10 >= 0 && map.mapData[gridY10][gridX10] != 0) {
+	state.bullets1.erase(state.bullets1.begin() + i);
+	}
+	*/
+
+	state.player1.position.x += state.player1.velocity.x * elapsed;
+	float playerLeft = (state.player1.position.x - state.player1.size.x / 2.0f);
+	float playerRight = (state.player1.position.x + state.player1.size.x / 2.0f);
+	pair<int, int> tiledcoord5 = worldToTileCoordinates(playerLeft, state.player1.position.y);
+	int gridY5 = tiledcoord5.second;
+	int gridX5 = tiledcoord5.first;
+	if (gridY5 >= 0 && gridX5 >= 0 && map.mapData[gridY5][gridX5] != 0) {
+		float penetration = fabs((-TILE_SIZE * gridX5) + TILE_SIZE - (state.player1.position.x - state.player1.size.x / 2.0f));
+		state.player1.position.x +=  0.01f;
+	}
+	pair<int, int> tiledcoord6 = worldToTileCoordinates(playerRight, state.player1.position.y);
+	int gridY6 = tiledcoord6.second;
+	int gridX6 = tiledcoord6.first;
+	if (gridY6 >= 0 && gridX6 >= 0 && map.mapData[gridY6][gridX6] != 0) {
+		float penetration = fabs((state.player1.position.x + state.player1.size.x / 2.0f) - (-TILE_SIZE * gridX6));
+		state.player1.position.x -= 0.01f;
+	}
+
+	state.player2.position.y += state.player2.velocity.y * elapsed;
 	float playerBottom2 = (state.player2.position.y - state.player2.size.y / 2.0f);
-	float playerTop2 = (state.player1.position.y + state.player1.size.y / 2.0f);
+	float playerTop2 = (state.player2.position.y + state.player2.size.y / 2.0f);
 	pair<int, int> tiledcoord3 = worldToTileCoordinates(state.player2.position.x, playerBottom2);
 	int gridY3 = tiledcoord3.second;
 	int gridX3 = tiledcoord3.first;
 	if (gridY3 >= 0 && gridX3 >= 0 && map.mapData[gridY3][gridX3] != 0) {
 		float penetration = fabs((-TILE_SIZE * gridY3) - (state.player2.position.y - state.player2.size.y / 2.0f));
-		state.player2.position.y += penetration;
+		state.player2.position.y +=  0.01f;
 	}
-	pair<int, int> tiledcoord4 = worldToTileCoordinates(state.player1.position.y, playerTop2);
+	pair<int, int> tiledcoord4 = worldToTileCoordinates(state.player2.position.x, playerTop2);
 	int gridY4 = tiledcoord4.second;
 	int gridX4 = tiledcoord4.first;
 	if (gridY4 >= 0 && gridX4 >= 0 && map.mapData[gridY4][gridX4] != 0) {
 		float penetration = fabs((state.player2.position.y + state.player2.size.y / 2.0f) - (-TILE_SIZE * gridY4) - TILE_SIZE);
-		state.player2.position.y -= penetration;
+		state.player2.position.y -=  0.01f;
 	}
 
-	float playerLeft = (state.player1.position.x - state.player1.size.x / 2.0f);
-	float playerRight = (state.player1.position.x + state.player1.size.x / 2.0f);
-	pair<int, int> tiledcoord5 = worldToTileCoordinates(state.player1.position.x, playerLeft);
-	int gridY5 = tiledcoord5.second;
-	int gridX5 = tiledcoord5.first;
-	if (gridY5 >= 0 && gridX5 >= 0 && map.mapData[gridY5][gridX5] != 0) {
-		float penetration = fabs((-TILE_SIZE * gridX5) + TILE_SIZE - (state.player1.position.x - state.player1.size.x / 2.0f));
-		state.player1.position.x += penetration;
-	}
-	pair<int, int> tiledcoord6 = worldToTileCoordinates(state.player1.position.x, playerRight);
-	int gridY6 = tiledcoord6.second;
-	int gridX6 = tiledcoord6.first;
-	if (gridY6 >= 0 && gridX6 >= 0 && map.mapData[gridY6][gridX6] != 0) {
-		float penetration = fabs((state.player1.position.x + state.player1.size.x / 2.0f) - (-TILE_SIZE * gridX6));
-		state.player1.position.x -= penetration;
-	}
 
+	state.player2.position.x += state.player2.velocity.x * elapsed;
 	float playerLeft2 = (state.player2.position.x - state.player2.size.x / 2.0f);
 	float playerRight2 = (state.player2.position.x + state.player2.size.x / 2.0f);
-	pair<int, int> tiledcoord7 = worldToTileCoordinates(state.player2.position.x, playerLeft2);
+	pair<int, int> tiledcoord7 = worldToTileCoordinates(playerLeft2, state.player2.position.y);
 	int gridY7 = tiledcoord7.second;
 	int gridX7 = tiledcoord7.first;
 	if (gridY7 >= 0 && gridX7 >= 0 && map.mapData[gridY7][gridX7] != 0) {
 		float penetration = fabs((-TILE_SIZE * gridX7) + TILE_SIZE - (state.player2.position.x - state.player2.size.x / 2.0f));
-		state.player2.position.x += penetration;
+		state.player2.position.x +=  0.01f;
 	}
-	pair<int, int> tiledcoord8 = worldToTileCoordinates(state.player2.position.x, playerRight2);
+	pair<int, int> tiledcoord8 = worldToTileCoordinates(playerRight2, state.player2.position.y);
 	int gridY8 = tiledcoord8.second;
 	int gridX8 = tiledcoord8.first;
 	if (gridY8 >= 0 && gridX8 >= 0 && map.mapData[gridY8][gridX8] != 0) {
 		float penetration = fabs((state.player2.position.x + state.player2.size.x / 2.0f) - (-TILE_SIZE * gridX8));
-		state.player2.position.x -= penetration;
+		state.player2.position.x -= 0.01f;
 	}
 
 	state.player1.sincelastshot += elapsed;
@@ -794,23 +832,23 @@ void UpdateGameLevel(float elapsed) {
 	for (size_t i = 0; i < state.bullets1.size(); i++) {
 		state.bullets1[i].position.x += state.bullets1[i].velocity.x*elapsed;
 		state.bullets1[i].position.y += state.bullets1[i].velocity.y*elapsed;
-		for (size_t i = 0; i < state.bullets1.size(); i++) {
-			float p1 = (abs(state.bullets1[i].position.x - state.player2.position.x) - ((state.bullets1[i].size.x) + (state.player2.size.x)) / 2.0f);
-			float p2 = (abs(state.bullets1[i].position.y - state.player2.position.y) - ((state.bullets1[i].size.y) + (state.player2.size.y)) / 2.0f);
-			if (p1 < 0 && p2 < 0) {
-				state.bullets1[i].remove();
-				if (state.bullets1[i].type == "default") {
-					state.player2.ishit(10);
-				}
-				if (state.bullets1[i].type == "Heavy") {
-					state.player2.ishit(50);
-				}
-				if (state.bullets1[i].type == "Wave") {
-					state.player2.ishit(25);
-				}
-				if (state.bullets1[i].type == "Spark") {
-					state.player2.ishit(15);
-				}
+
+		float p1 = (abs(state.bullets1[i].position.x - state.player2.position.x) - ((state.bullets1[i].size.x) + (state.player2.size.x)) / 2.0f);
+		float p2 = (abs(state.bullets1[i].position.y - state.player2.position.y) - ((state.bullets1[i].size.y) + (state.player2.size.y)) / 2.0f);
+		if (p1 < 0 && p2 < 0) {
+
+			state.bullets1[i].remove();
+			if (state.bullets1[i].type == "default") {
+				state.player2.is_hit(10);
+			}
+			if (state.bullets1[i].type == "Heavy") {
+				state.player2.is_hit(50);
+			}
+			if (state.bullets1[i].type == "Wave") {
+				state.player2.is_hit(25);
+			}
+			if (state.bullets1[i].type == "Spark") {
+				state.player2.is_hit(5);
 			}
 		}
 	}
@@ -818,23 +856,22 @@ void UpdateGameLevel(float elapsed) {
 	for (size_t i = 0; i < state.bullets2.size(); i++) {
 		state.bullets2[i].position.x += state.bullets2[i].velocity.x*elapsed;
 		state.bullets2[i].position.y += state.bullets2[i].velocity.y*elapsed;
-		for (size_t i = 0; i < state.bullets2.size(); i++) {
-			float p1 = (abs(state.bullets2[i].position.x - state.player1.position.x) - ((state.bullets2[i].size.x) + (state.player1.size.x)) / 2.0f);
-			float p2 = (abs(state.bullets2[i].position.y - state.player1.position.y) - ((state.bullets2[i].size.y) + (state.player1.size.y)) / 2.0f);
-			if (p1 < 0 && p2 < 0) {
-				state.bullets2[i].remove();
-				if (state.bullets2[i].type == "default") {
-					state.player1.ishit(10);
-				}
-				if (state.bullets2[i].type == "Heavy") {
-					state.player1.ishit(50);
-				}
-				if (state.bullets2[i].type == "Wave") {
-					state.player1.ishit(25);
-				}
-				if (state.bullets2[i].type == "Spark") {
-					state.player1.ishit(15);
-				}
+
+		float p1 = (abs(state.bullets2[i].position.x - state.player1.position.x) - ((state.bullets2[i].size.x) + (state.player1.size.x)) / 2.0f);
+		float p2 = (abs(state.bullets2[i].position.y - state.player1.position.y) - ((state.bullets2[i].size.y) + (state.player1.size.y)) / 2.0f);
+		if (p1 < 0 && p2 < 0) {
+			state.bullets2[i].remove();
+			if (state.bullets2[i].type == "default") {
+				state.player1.is_hit(10);
+			}
+			if (state.bullets2[i].type == "Heavy") {
+				state.player1.is_hit(50);
+			}
+			if (state.bullets2[i].type == "Wave") {
+				state.player1.is_hit(25);
+			}
+			if (state.bullets2[i].type == "Spark") {
+				state.player1.is_hit(5);
 			}
 		}
 	}
@@ -1019,15 +1056,12 @@ int main(int argc, char *argv[])
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 75);
 							state.player1 = newEntity;
 							state.player1.type = "player1";
-							state.player1.velocity.x = 0.5f;
-							state.player1.velocity.y = 0.5f;
+
 						}
 						if (a.type == "Player2") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 59);
 							state.player2 = newEntity;
 							state.player2.type = "player2";
-							state.player2.velocity.x = 0.5f;
-							state.player2.velocity.y = 0.5f;
 						}
 						else if (a.type == "Heavy") {
 							Entity newEntity(a.x*TILE_SIZE, a.y*-TILE_SIZE, 8);
