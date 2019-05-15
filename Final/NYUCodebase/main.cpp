@@ -548,7 +548,6 @@ void shootBullet1() {
 		else if (state.player1.type == "player2") {
 			state.bullets2.push_back(newBullet);
 		}
-		Mix_PlayChannel(-1, DefaultGunSound, 0);
 
 	}
 	if (state.player1.bullet_type == "Heavy") {
@@ -575,7 +574,6 @@ void shootBullet1() {
 		else if (state.player1.type == "player2") {
 			state.bullets2.push_back(newBullet);
 		}
-		Mix_PlayChannel(-1, HeavyGunSound, 0);
 	}
 	if (state.player1.bullet_type == "Wave") {
 		Entity newBullet;
@@ -601,7 +599,6 @@ void shootBullet1() {
 		else if (state.player1.type == "player2") {
 			state.bullets2.push_back(newBullet);
 		}
-		Mix_PlayChannel(-1, WaveGunSound, 0);
 	}
 	if (state.player1.bullet_type == "Spark") {
 		Entity newBullet;
@@ -627,7 +624,6 @@ void shootBullet1() {
 		else if (state.player1.type == "player2") {
 			state.bullets2.push_back(newBullet);
 		}
-		Mix_PlayChannel(-1, SparkGunSound, 0);
 	}
 
 }
@@ -656,7 +652,6 @@ void shootBullet2() {
 		else if (state.player2.type == "player2") {
 			state.bullets2.push_back(newBullet);
 		}
-		Mix_PlayChannel(-1, DefaultGunSound, 0);
 
 	}
 	if (state.player2.bullet_type == "Heavy") {
@@ -683,7 +678,6 @@ void shootBullet2() {
 		else if (state.player2.type == "player2") {
 			state.bullets2.push_back(newBullet);
 		}
-		Mix_PlayChannel(-1, HeavyGunSound, 0);
 	}
 	if (state.player2.bullet_type == "Wave") {
 		Entity newBullet;
@@ -709,7 +703,6 @@ void shootBullet2() {
 		else if (state.player2.type == "player2") {
 			state.bullets2.push_back(newBullet);
 		}
-		Mix_PlayChannel(-1, WaveGunSound, 0);
 	}
 	if (state.player2.bullet_type == "Spark") {
 		Entity newBullet;
@@ -735,7 +728,6 @@ void shootBullet2() {
 		else if (state.player2.type == "player2") {
 			state.bullets2.push_back(newBullet);
 		}
-		Mix_PlayChannel(-1, SparkGunSound, 0);
 	}
 
 }
@@ -980,6 +972,7 @@ void UpdateGameLevel(float elapsed) {
 
 	if (state.player1.health <= 0) {
 		mode = STATE_GAME_OVER2;
+
 	}
 	if (state.player2.health <= 0) {
 		mode = STATE_GAME_OVER1;
@@ -1204,7 +1197,7 @@ int main(int argc, char *argv[])
 						}
 					}
 				}
-				if (mode == STATE_GAME_SELECT && event.key.keysym.scancode == SDL_SCANCODE_3) {
+				if (mode == STATE_GAME_SELECT && event.key.keysym.scancode == SDL_SCANCODE_4) {
 					mode = STATE_GAME_LEVEL_3;
 					map.Load("Level3.txt");
 					for (FlareMapEntity a : map.entities) {
@@ -1237,6 +1230,34 @@ int main(int argc, char *argv[])
 							newEntity.type = "Spark";
 							state.items.push_back(newEntity);
 						}
+					}
+				}
+				if (event.key.keysym.scancode == SDL_SCANCODE_LSHIFT) {
+					if (state.player2.bullet_type == "default" && state.player2.sincelastshot >= 0.5f) {
+						Mix_PlayChannel(-1, DefaultGunSound, 0);
+					}
+					else if (state.player2.bullet_type == "Heavy" && state.player2.sincelastshot >= 0.5f) {
+						Mix_PlayChannel(-1, HeavyGunSound, 0);
+					}
+					else if (state.player2.bullet_type == "Wave" && state.player2.sincelastshot >= 0.5f) {
+						Mix_PlayChannel(-1, WaveGunSound, 0);
+					}
+					else if (state.player2.bullet_type == "Spark" && state.player2.sincelastshot >= 0.5f) {
+						Mix_PlayChannel(-1, SparkGunSound, 0);
+					}
+				}
+				if (event.key.keysym.scancode == SDL_SCANCODE_RSHIFT) {
+					if (state.player1.bullet_type == "default" && state.player1.sincelastshot >= 0.5f) {
+						Mix_PlayChannel(-1, DefaultGunSound, 0);
+					}
+					else if (state.player1.bullet_type == "Heavy" && state.player1.sincelastshot >= 0.5f) {
+						Mix_PlayChannel(-1, HeavyGunSound, 0);
+					}
+					else if (state.player1.bullet_type == "Wave" && state.player1.sincelastshot >= 0.5f) {
+						Mix_PlayChannel(-1, WaveGunSound, 0);
+					}
+					else if (state.player1.bullet_type == "Spark" && state.player1.sincelastshot >= 0.5f) {
+						Mix_PlayChannel(-1, SparkGunSound, 0);
 					}
 				}
 			}
