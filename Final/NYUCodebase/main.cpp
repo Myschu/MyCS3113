@@ -404,6 +404,23 @@ void RenderGameLevel1() {
 	for (size_t i = 0; i < state.items.size(); i++) {
 		state.items[i].Draw1(program);
 	}
+	glm::mat4 textMatrix = glm::mat4(1.0f);
+	textMatrix = glm::translate(textMatrix, glm::vec3(1.25f, -3.15f, 0.0f));
+	program.SetModelMatrix(textMatrix);
+	string healthstr;
+	stringstream health; 
+	health << state.player1.health;
+	healthstr = health.str();
+	DrawText(program, fontTexture, "Player 1 Health: "+healthstr , 0.15f, -0.05f);
+
+	textMatrix = glm::mat4(1.0f);
+	textMatrix = glm::translate(textMatrix, glm::vec3(0.05f, -0.05f, 0.0f));
+	program.SetModelMatrix(textMatrix);
+	string healthstr2;
+	stringstream health2;
+	health2 << state.player2.health;
+	healthstr2 = health2.str();
+	DrawText(program, fontTexture, "Player 2 Health: " + healthstr2, 0.15f, -0.05f);
 }
 
 void RenderGameLevel2() {
@@ -419,6 +436,23 @@ void RenderGameLevel2() {
 	for (size_t i = 0; i < state.items.size(); i++) {
 		state.items[i].Draw1(program);
 	}
+	glm::mat4 textMatrix = glm::mat4(1.0f);
+	textMatrix = glm::translate(textMatrix, glm::vec3(1.25f, -3.15f, 0.0f));
+	program.SetModelMatrix(textMatrix);
+	string healthstr;
+	stringstream health;
+	health << state.player1.health;
+	healthstr = health.str();
+	DrawText(program, fontTexture, "Player 1 Health: " + healthstr, 0.15f, -0.05f);
+
+	textMatrix = glm::mat4(1.0f);
+	textMatrix = glm::translate(textMatrix, glm::vec3(0.05f, -0.05f, 0.0f));
+	program.SetModelMatrix(textMatrix);
+	string healthstr2;
+	stringstream health2;
+	health2 << state.player2.health;
+	healthstr2 = health2.str();
+	DrawText(program, fontTexture, "Player 2 Health: " + healthstr2, 0.15f, -0.05f);
 }
 
 void RenderGameLevel3() {
@@ -434,6 +468,23 @@ void RenderGameLevel3() {
 	for (size_t i = 0; i < state.items.size(); i++) {
 		state.items[i].Draw1(program);
 	}
+	glm::mat4 textMatrix = glm::mat4(1.0f);
+	textMatrix = glm::translate(textMatrix, glm::vec3(1.25f, -3.15f, 0.0f));
+	program.SetModelMatrix(textMatrix);
+	string healthstr;
+	stringstream health;
+	health << state.player1.health;
+	healthstr = health.str();
+	DrawText(program, fontTexture, "Player 1 Health: " + healthstr, 0.15f, -0.05f);
+
+	textMatrix = glm::mat4(1.0f);
+	textMatrix = glm::translate(textMatrix, glm::vec3(0.05f, -0.05f, 0.0f));
+	program.SetModelMatrix(textMatrix);
+	string healthstr2;
+	stringstream health2;
+	health2 << state.player2.health;
+	healthstr2 = health2.str();
+	DrawText(program, fontTexture, "Player 2 Health: " + healthstr2, 0.15f, -0.05f);
 }
 
 void shootBullet1() {
@@ -808,8 +859,8 @@ void UpdateGameLevel(float elapsed) {
 	if (keys[SDL_SCANCODE_RIGHTBRACKET]) {
 		if (mode == STATE_GAME_LEVEL_1 || mode == STATE_GAME_LEVEL_2 || mode == STATE_GAME_LEVEL_3) {
 			for (size_t i = 0; i < state.items.size(); i++) {
-				float p1 = (abs(state.items[i].position.x - state.player1.position.x) - ((state.items[i].size.x) + (state.player1.size.x)) / 2.0f);
-				float p2 = (abs(state.items[i].position.y - state.player1.position.y) - ((state.items[i].size.y) + (state.player1.size.y)) / 2.0f);
+				float p1 = (fabs(state.items[i].position.x - state.player1.position.x) - ((state.items[i].size.x) + (state.player1.size.x)) / 2.0f);
+				float p2 = (fabs(state.items[i].position.y - state.player1.position.y) - ((state.items[i].size.y) + (state.player1.size.y)) / 2.0f);
 				if (p1 < 0 && p2 < 0) {
 					state.player1.pickup(state.items[i].type);
 
@@ -820,8 +871,8 @@ void UpdateGameLevel(float elapsed) {
 	if (keys[SDL_SCANCODE_TAB]) {
 		if (mode == STATE_GAME_LEVEL_1 || mode == STATE_GAME_LEVEL_2 || mode == STATE_GAME_LEVEL_3) {
 			for (size_t i = 0; i < state.items.size(); i++) {
-				float p1 = (abs(state.items[i].position.x - state.player2.position.x) - ((state.items[i].size.x) + (state.player2.size.x)) / 2.0f);
-				float p2 = (abs(state.items[i].position.y - state.player2.position.y) - ((state.items[i].size.y) + (state.player2.size.y)) / 2.0f);
+				float p1 = (fabs(state.items[i].position.x - state.player2.position.x) - ((state.items[i].size.x) + (state.player2.size.x)) / 2.0f);
+				float p2 = (fabs(state.items[i].position.y - state.player2.position.y) - ((state.items[i].size.y) + (state.player2.size.y)) / 2.0f);
 				if (p1 < 0 && p2 < 0) {
 						state.player2.pickup(state.items[i].type);
 				}
@@ -830,11 +881,9 @@ void UpdateGameLevel(float elapsed) {
 	}
 
 	for (size_t i = 0; i < state.bullets1.size(); i++) {
-		state.bullets1[i].position.x += state.bullets1[i].velocity.x*elapsed;
-		state.bullets1[i].position.y += state.bullets1[i].velocity.y*elapsed;
+		float p1 = (fabs(state.bullets1[i].position.x - state.player2.position.x) - ((state.bullets1[i].size.x) + (state.player2.size.x)) / 2.0f);
+		float p2 = (fabs(state.bullets1[i].position.y - state.player2.position.y) - ((state.bullets1[i].size.y) + (state.player2.size.y)) / 2.0f);
 
-		float p1 = (abs(state.bullets1[i].position.x - state.player2.position.x) - ((state.bullets1[i].size.x) + (state.player2.size.x)) / 2.0f);
-		float p2 = (abs(state.bullets1[i].position.y - state.player2.position.y) - ((state.bullets1[i].size.y) + (state.player2.size.y)) / 2.0f);
 		if (p1 < 0 && p2 < 0) {
 
 			state.bullets1[i].remove();
@@ -851,14 +900,14 @@ void UpdateGameLevel(float elapsed) {
 				state.player2.is_hit(5);
 			}
 		}
+		state.bullets1[i].position.x += state.bullets1[i].velocity.x*elapsed;
+		state.bullets1[i].position.y += state.bullets1[i].velocity.y*elapsed;
+
 	}
 
 	for (size_t i = 0; i < state.bullets2.size(); i++) {
-		state.bullets2[i].position.x += state.bullets2[i].velocity.x*elapsed;
-		state.bullets2[i].position.y += state.bullets2[i].velocity.y*elapsed;
-
-		float p1 = (abs(state.bullets2[i].position.x - state.player1.position.x) - ((state.bullets2[i].size.x) + (state.player1.size.x)) / 2.0f);
-		float p2 = (abs(state.bullets2[i].position.y - state.player1.position.y) - ((state.bullets2[i].size.y) + (state.player1.size.y)) / 2.0f);
+		float p1 = (fabs(state.bullets2[i].position.x - state.player1.position.x) - ((state.bullets2[i].size.x) + (state.player1.size.x)) / 2.0f);
+		float p2 = (fabs(state.bullets2[i].position.y - state.player1.position.y) - ((state.bullets2[i].size.y) + (state.player1.size.y)) / 2.0f);
 		if (p1 < 0 && p2 < 0) {
 			state.bullets2[i].remove();
 			if (state.bullets2[i].type == "default") {
@@ -874,6 +923,9 @@ void UpdateGameLevel(float elapsed) {
 				state.player1.is_hit(5);
 			}
 		}
+		state.bullets2[i].position.x += state.bullets2[i].velocity.x*elapsed;
+		state.bullets2[i].position.y += state.bullets2[i].velocity.y*elapsed;
+
 	}
 
 	for (size_t i = 0; i < state.bullets1.size(); i++) {
