@@ -1197,7 +1197,7 @@ int main(int argc, char *argv[])
 						}
 					}
 				}
-				if (mode == STATE_GAME_SELECT && event.key.keysym.scancode == SDL_SCANCODE_4) {
+				if (mode == STATE_GAME_SELECT && event.key.keysym.scancode == SDL_SCANCODE_3) {
 					mode = STATE_GAME_LEVEL_3;
 					map.Load("Level3.txt");
 					for (FlareMapEntity a : map.entities) {
